@@ -1,7 +1,7 @@
 # Part 0: Fundamentals of Web apps
 Full Stack Course at th University of Helsinky (2021)
 
-This is a compilation of the exercise:
+This is a compilation of the exercises:
 
 ## 0.1: HTML
 Review the basics of HTML by reading this tutorial from Mozilla: HTML tutorial.
