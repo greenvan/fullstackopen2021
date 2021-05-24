@@ -5,4 +5,4 @@ My HTML solution: [index.html](index.html)
 
 Screenshot:
 
-![alt text](img/screenshot.png "Screenshot of my exercise solution")
+!["Screenshot of my exercise solution"](img/screenshot.png )
