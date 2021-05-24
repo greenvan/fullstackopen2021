@@ -5,4 +5,4 @@ My CSS solution: [index.html](index.html)
 
 Screenshot:
 
-!["Screenshot of my exercise solution"](img/screenshot.png)
+![Screenshot of my exercise solution](img/screenshot.PNG)
