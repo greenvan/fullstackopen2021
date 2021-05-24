@@ -7,7 +7,7 @@ This is a compilation of the exercises completed for the course
 ## Course Contents
 
 - [Part 0: Fundamentals of Web apps](part0/README.md)
-- Part 1: Introduction to React
+- [Part 1: Introduction to React](part1/README.md)
 - Part 2: Communicating with server
 - Part 3: Programming a server with NodeJS and Express
 - Part 4: Testing Express servers, user administration
