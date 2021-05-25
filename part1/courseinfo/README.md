@@ -51,7 +51,7 @@ export default App
 
 ## Exercise 1.3 - course information, step 3
 
-```javascript
+```js
 import React from 'react'
 
 const Header = (props) => (
