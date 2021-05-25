@@ -7,7 +7,7 @@ This is a compilation of the exercises 1.1 to 1.5
 
 ## Exercises 1.1 and 1.2 - course information, steps 1 and 2
 
-```
+```javascript
 import React from 'react'
 
 const Header = (props) => (
@@ -53,7 +53,7 @@ export default App
 
 ## Exercise 1.3 - course information, step 3
 
-```
+```javascript
 import React from 'react'
 
 const Header = (props) => (
@@ -104,7 +104,7 @@ export default App
 ```
 
 ## Exercise 1.4 - course information, step 4
-```
+```javascript
 import React from 'react'
 
 const Header = (props) => (
@@ -169,7 +169,7 @@ export default App
 
 Just changed this part:
 
-```
+```javascript
 const App = () => {
 const course = {
     name: 'Half Stack application development',
