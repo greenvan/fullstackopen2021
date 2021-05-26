@@ -47,3 +47,38 @@ ReactDOM.render(<App />,
   document.getElementById('root')
 )
 ```
+
+## Exercises 1.7 - unicafe, step 2
+
+Just changed the `Statistics` component:
+
+```js
+const Statistics = ({ good_count, neutral_count, bad_count }) => {
+
+  const all = good_count + neutral_count + bad_count
+  const average = (good_count*1 + bad_count*(-1))/all
+  const positive = (good_count/ all) * 100
+  
+  return (
+    <>
+    <h1>Statistics</h1>
+    <div>Good: {good_count}</div>
+    <div>Neutral: {neutral_count}</div>
+    <div>Bad: {bad_count}</div>
+    
+    <div>Total number of feedbacks: {all}</div>    
+    <div>Average: {average}</div>    
+    <div>Positive: {positive} %</div>
+    </>
+  )
+}
+```
+
+## Exercises 1.8 - unicafe, step 3
+This part (refactoring the block Statistics) is already done at Exercise 1.6
+
+## Exercises 1.9 - unicafe, step 4
+
+## Exercises 1.10 - unicafe, step 5
+
+## Exercises 1.11 - unicafe, step 6

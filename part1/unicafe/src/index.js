@@ -2,12 +2,22 @@ import React, { useState } from 'react'
 import ReactDOM from 'react-dom'
 
 const Statistics = ({ good_count, neutral_count, bad_count }) => {
+
+  const all = good_count + neutral_count + bad_count
+  const average = (good_count*1 + bad_count*(-1))/all
+  const positive = (good_count/ all) * 100
+  
+
   return (
     <>
     <h1>Statistics</h1>
     <div>Good: {good_count}</div>
     <div>Neutral: {neutral_count}</div>
     <div>Bad: {bad_count}</div>
+    
+    <div>Total number of feedbacks: {all}</div>    
+    <div>Average: {average}</div>    
+    <div>Positive: {positive} %</div>
     </>
   )
 }
