@@ -1,13 +1,13 @@
 # Course Information
-Part 1: Introduction to React
-
-Full Stack Course at th University of Helsinky (2021)
+From *Part 1: Introduction to React* of **Full Stack Course at the University of Helsinky (2021)**
 
 This is a compilation of the exercises 1.1 to 1.5
 
+Source files can be found in ['courseinfo/src'](courseinfo/src) folder
+
 ## Exercises 1.1 and 1.2 - course information, steps 1 and 2
 
-```
+```js
 import React from 'react'
 
 const Header = (props) => (
@@ -53,7 +53,7 @@ export default App
 
 ## Exercise 1.3 - course information, step 3
 
-```
+```js
 import React from 'react'
 
 const Header = (props) => (
@@ -104,7 +104,8 @@ export default App
 ```
 
 ## Exercise 1.4 - course information, step 4
-```
+
+```js
 import React from 'react'
 
 const Header = (props) => (
@@ -169,7 +170,7 @@ export default App
 
 Just changed this part:
 
-```
+```js
 const App = () => {
 const course = {
     name: 'Half Stack application development',
