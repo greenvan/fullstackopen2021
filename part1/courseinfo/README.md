@@ -3,7 +3,7 @@ From *Part 1: Introduction to React* of **Full Stack Course at the University of
 
 This is a compilation of the exercises 1.1 to 1.5
 
-Source files can be found in ['courseinfo/src'](courseinfo/src) folder
+Source files can be found in ['courseinfo/src'](https://github.com/greenvan/fullstackopen2021/tree/main/part1/courseinfo/src) folder
 
 ## Exercises 1.1 and 1.2 - course information, steps 1 and 2
 
