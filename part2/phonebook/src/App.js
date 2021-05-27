@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 
 
-const Person = ({person}) => <p>{person.name}</p>
+const Person = ({ person }) => <p>{person.name}</p>
 
 
 const App = () => {
@@ -10,9 +10,16 @@ const App = () => {
 
   const addNumber = (event) => {
     event.preventDefault() //to prevent the default action of submitting HTML forms
-    const numberObject = {name: newName}
-    setPersons(persons.concat(numberObject))
-    setNewName('')
+
+    //Check if it is already in database
+    if (persons.find((person) => person.name === newName)) {
+      window.alert(`${newName} is already added to phonebook`)
+    }
+    else {
+      const numberObject = { name: newName }
+      setPersons(persons.concat(numberObject))
+      setNewName('')
+    }
   }
 
   const handleNameChange = (event) => {

@@ -52,3 +52,20 @@ const App = () => {
 
 export default App
 ```
+
+## Exercise 2.7: Phone Book, step 2
+
+Added this part in addNumber Function:
+
+```js
+    //Check if it is already in database
+    if (persons.find((person) => person.name === newName)) {
+      window.alert(`${newName} is already added to phonebook`)
+    }
+    else {
+      const numberObject = { name: newName }
+      setPersons(persons.concat(numberObject))
+      setNewName('')
+    }
+
+```
