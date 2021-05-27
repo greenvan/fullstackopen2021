@@ -9,22 +9,32 @@ const Button = ({ handleClick, text }) => (
 
 const App = (props) => {
   const [selected, setSelected] = useState(0)
+  const lenght = anecdotes['length']
+  const [points, setPoints] = useState(new Array(lenght).fill(0))
 
-//Modified to include max from https://developer.mozilla.org/es/docs/Web/JavaScript/Reference/Global_Objects/Math/random
-function getRandomInt(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-  
-  const getNext = () => {   
-    const random = getRandomInt(0,anecdotes['length']-1)
-    setSelected(random)   
+  const vote = (selected) => {
+    const copy = { ...points }
+    copy[selected] += 1
+    setPoints(copy);
+  }
+
+  //Modified to include max from https://developer.mozilla.org/es/docs/Web/JavaScript/Reference/Global_Objects/Math/random
+  function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  const getNext = () => {
+    const random = getRandomInt(0, anecdotes['length'] - 1)
+    setSelected(random)
   }
 
   return (
     <><div>
       {props.anecdotes[selected]}
     </div>
-    <Button handleClick={() => getNext()} text="Next anecdote"/>
+    <div>Has {points[selected]} votes</div>
+      <Button handleClick={() => vote(selected)} text="Vote" />
+      <Button handleClick={() => getNext()} text="Next anecdote" />
     </>
   )
 }

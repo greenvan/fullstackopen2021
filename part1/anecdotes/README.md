@@ -55,11 +55,28 @@ ReactDOM.render(
 ```
 
 ## Exercises 1.13* - anecdotes, step 2
-
+Added the following at the beginning of `App`: 
 ```js
+  const lenght = anecdotes['length']
+  const [points, setPoints] = useState(new Array(lenght).fill(0))
 
+  const vote = (selected) => {
+    const copy = { ...points }
+    copy[selected] += 1
+    setPoints(copy);
+  }
 ```
-
+Added a new Button 'Vote' and a `<div>` to show Votes:
+```js
+  return (
+    <><div>
+      {props.anecdotes[selected]}
+    </div>
+    <div>Has {points[selected]} votes</div>
+      <Button handleClick={() => vote(selected)} text="Vote" />
+      <Button handleClick={() => getNext()} text="Next anecdote" />
+    </>
+```
 ## Exercises 1.14* - anecdotes, step 3
 
 ```js
