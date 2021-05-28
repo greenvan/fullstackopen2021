@@ -104,4 +104,31 @@ In `App`:
         </div>
 ```
 
+## Exercise 2.9*: Phone Book, step 4
+
+1. Added new state `filter` and `personsToShow` list created with persons that match the filter.
+
+```js
+  const [filter, setFilter] = useState('')
+
+  const personsToShow = (filter === '')
+    ? persons
+    : persons.filter(
+      person => person.name.toLocaleLowerCase().includes(filter.toLocaleLowerCase())
+ 
+```
+
+2. Added a new input field to the form:
+```js
+    <div> 
+        Filter shown whith: <input value={filter} onChange={handleFilterChange} />
+    <div> 
+```
+
+3. Added a handler for the input field:
+```js
+  const handleFilterChange = (event) => {
+    setFilter(event.target.value)
+  }
+```
 
