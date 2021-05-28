@@ -121,7 +121,7 @@ In `App`:
 2. Added a new input field to the form:
 ```js
     <div> 
-        Filter shown whith: <input value={filter} onChange={handleFilterChange} />
+        Filter shown with: <input value={filter} onChange={handleFilterChange} />
     <div> 
 ```
 
@@ -213,7 +213,7 @@ import React from 'react'
 
 const Filter = ({ filter, onChangeHandler }) =>
     <div>
-        Filter shown whith: <input value={filter} onChange={onChangeHandler} />
+        Filter shown with: <input value={filter} onChange={onChangeHandler} />
     </div>
 
 export default Filter
@@ -259,3 +259,34 @@ const Persons = ({ persons }) =>
 export default Persons
 ```
 
+
+## Exercise 2.11: Phone Book, step 6
+Followed steps
+1. Create db.json on root directory
+2. Install axios and json server on dev mode:
+
+`$ npm install axios`
+
+`$ npm install json-server --save-dev`
+
+3. Add this line to packages.json
+
+`"server": "json-server -p3001 --watch db.json"`
+
+4. Run server
+
+`$ npm run server`
+
+5. Edit `App.js` file: Import axios, useEffect and add this to App()
+
+```js
+  const [persons, setPersons] = useState([])
+
+  useEffect(() => {
+    axios
+      .get('http://localhost:3001/persons')
+      .then(response => {
+        setPersons(response.data)
+      })
+  }, [])
+```
