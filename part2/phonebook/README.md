@@ -34,7 +34,6 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-      <div>debug: {newName}</div>
       <form onSubmit={addNumber}>
         <div>
           Name:
@@ -67,5 +66,42 @@ Added this part in addNumber Function:
       setPersons(persons.concat(numberObject))
       setNewName('')
     }
-
 ```
+
+## Exercise 2.8: Phone Book, step 3
+
+`Person` component has been modified to include the phone number:
+```js
+const Person = ({ person }) => <p>{person.name}: {person.phone}</p>
+```
+
+In `App`:
+1. Added new state const:
+```js
+  const [newNumber, setNewNumber] = useState('')
+``` 
+
+2. Modified the part in which the Person list state is set:
+```js
+      const numberObject = { name: newName, phone: newNumber }
+      setPersons(persons.concat(numberObject))
+      setNewName('')
+      setNewNumber('')
+```      
+
+3. Added new handler for the Number input field
+```js
+  const handleNumberChange = (event) => {
+    setNewNumber(event.target.value)
+  }
+```
+
+4. Added a second input element for Number to the form
+
+```js
+        <div> 
+          Number: <input value={newNumber} onChange={handleNumberChange} />
+        </div>
+```
+
+
