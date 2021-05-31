@@ -5,7 +5,7 @@ This is a compilation of the exercises 2.12 to 2.14
 
 Source files can be found in ['countries/src'](https://github.com/greenvan/fullstackopen2021/tree/main/part2/phonebook/src) folder
 
-## Exercise 2.12* Data for countries, step1
+## Exercise 2.12* Data for countries, step 1
 
 File `App.js`
 ```js
@@ -104,4 +104,33 @@ const Countries = ({ countries }) => {
 }
 
 export default Countries
+```
+
+## Exercise 2.13* Data for countries, step 2
+
+Added a Button component in `components\Button.js`
+
+```js
+const Button = ({text,value, onClick}) =>  <button value={value}  onClick={onClick}>
+      {text}
+    </button>
+```
+
+Country and LanguageList components have been refactored to a new component file "County.js" but unmodified.
+
+In App() at `App.js` a new state element has been added and a handler for the button element:
+
+```js
+  const [selectedCountry, setSelectedCountry] = useState('')
+
+
+  const handleCountryOnClick = (event) => 
+    setSelectedCountry(countries.find(country => country.alpha3Code === event.target.value))    
+  ```
+
+  At the Countries element, 
+
+```js 
+    if (selectedCountry !== '')
+        return <Country key={selectedCountry.name} country={selectedCountry} />
 ```

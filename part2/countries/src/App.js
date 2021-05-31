@@ -8,6 +8,7 @@ const App=()=>{
   
   const [countries, setCountries] = useState([])
   const [filter, setFilter] = useState('')
+  const [selectedCountry, setSelectedCountry] = useState('')
 
   
   useEffect(() => {
@@ -27,13 +28,17 @@ const App=()=>{
 
   const handleFilterChange = (event) => {
     setFilter(event.target.value)
+    setSelectedCountry('')
   }
+
+  const handleCountryOnClick = (event) => 
+    setSelectedCountry(countries.find(country => country.alpha3Code === event.target.value))    
 
   return (
     <div>
       <h2>Data for countries</h2>
       <Filter filter={filter} onChangeHandler={handleFilterChange} />
-      <Countries countries={countriesToShow} />
+      <Countries countries={countriesToShow} onClickHandler={handleCountryOnClick} selectedCountry={selectedCountry}/>
     </div>
   )
 }

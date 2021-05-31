@@ -1,24 +1,16 @@
 import React from 'react'
 
-const LanguageList = ({ languages }) =>
-    languages.map((language) => <li key={language.iso639_1}>{language.name}</li>)
+import Button from './Button.js'
+import Country from './Country.js'
 
-const Country = ({ country }) =>
 
-    <>
-        <h2>{country.name}</h2>
-        <p>Capital: {country.capital}</p>
-        <p>Population: {country.population}</p>
-        <h3>Spoken languages:</h3>
-        <ul>
-        <LanguageList languages={country.languages} />
-        </ul>
-        <img src={country.flag} alt="Flag" width="300"/>
-    </>
+const CountryItem = ({ country, onClickHandler }) => <p>{country.name} <Button text="Show" value={country.alpha3Code} onClick={onClickHandler} /></p>
 
-const CountryItem = ({ country }) => <p>{country.name}</p>
+const Countries = ({ countries, onClickHandler, selectedCountry }) => {
 
-const Countries = ({ countries }) => {
+    if (selectedCountry !== '')
+        return <Country key={selectedCountry.name} country={selectedCountry} />
+
     const lenght = countries['length']
 
     if (lenght > 10)
@@ -30,7 +22,7 @@ const Countries = ({ countries }) => {
     if (lenght === 1)
         return <Country key={countries[0].name} country={countries[0]} />
 
-    return countries.map((country) => <CountryItem key={country.name} country={country} />)
+    return countries.map((country) => <CountryItem key={country.name} country={country} onClickHandler={onClickHandler} />)
 
 }
 
