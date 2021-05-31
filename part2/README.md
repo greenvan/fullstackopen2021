@@ -18,3 +18,10 @@ The `phonebook` app is developed in
 [exercises 2.6 to 2.11 and 2.15 to 2.20](phonebook/README.md)
 
 Source files can be found in `src` folder inside ['phonebook'](https://github.com/greenvan/fullstackopen2021/tree/main/part2/phonebook) folder
+
+## C. Data for Countries
+
+The `countries` app is developed in 
+[exercises 2.2 to 2.14](countries/README.md)
+
+Source files can be found in `src` folder inside ['countries'](https://github.com/greenvan/fullstackopen2021/tree/main/part2/countries) folder
