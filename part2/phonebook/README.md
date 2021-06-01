@@ -340,3 +340,70 @@ import phoneService from './services/phones'
       }
     )
 ```
+
+## Exercise 2.17: PhoneBook step 9
+Allow users to delete entries.
+
+New component in `components/Button.js`
+
+```js
+import React from 'react'
+
+const Button = ({text,value, name, onClick}) =>  <button value={value}  name={name} onClick={onClick}>
+      {text}
+    </button>
+
+export default Button;
+```
+
+New function in `services/phones.js`
+
+´´´js
+  const del = (id) => {
+    const request = axios.delete(`${baseUrl}/${id}`)
+    return request;
+  }
+```
+
+Modify `components/Persons.js` to include de delete Button and his onClickHandler:
+
+```js
+import React from 'react'
+import Button from './Button'
+
+const Person = ({ person, onClickHandler }) => 
+<p>
+    {person.name}: {person.number} <Button text="Delete" value={person.id} name={person.name} onClick={onClickHandler} /></p>
+
+const Persons = ({ persons, onClickHandler }) =>
+    persons.map((person) => <Person key={person.name} person={person} onClickHandler={onClickHandler}/>)
+
+export default Persons
+```
+
+In `App.js` include the new const `handleOnClickDelete` and pass it to the `Persons` component:
+
+```js
+  const handleOnClickDelete = (event) => {
+
+    const name = event.target.name
+
+    if (window.confirm(`Delete '${name}'?`)) {
+
+      const id = event.target.value
+      phoneService
+        .del(id)
+        .then((req) => {
+          setPersons(persons.filter(p => p.name !== name))  
+        })
+        .catch(error => {
+          alert(`The number of ${name} was already deleted from server`)
+          setPersons(persons.filter(p =>  p.name !== name))
+        })
+    }
+  }
+
+  [...]
+  
+      <Persons persons={personsToShow} onClickHandler={handleOnClickDelete} />
+```

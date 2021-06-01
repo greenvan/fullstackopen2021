@@ -36,12 +36,12 @@ const App = () => {
     else {
       const numberObject = { name: newName, number: newNumber }
       phoneService
-      .create(numberObject)
-      .then(returnedPhone  => {
-        setPersons(persons.concat(returnedPhone))
-        setNewName('')
-        setNewNumber('')
-      })
+        .create(numberObject)
+        .then(returnedPhone => {
+          setPersons(persons.concat(returnedPhone))
+          setNewName('')
+          setNewNumber('')
+        })
     }
   }
 
@@ -54,6 +54,25 @@ const App = () => {
 
   const handleFilterChange = (event) => {
     setFilter(event.target.value)
+  }
+
+  const handleOnClickDelete = (event) => {
+
+    const name = event.target.name
+
+    if (window.confirm(`Delete '${name}'?`)) {
+
+      const id = event.target.value
+      phoneService
+        .del(id)
+        .then((req) => {
+          setPersons(persons.filter(p => p.name !== name))  
+        })
+        .catch(error => {
+          alert(`The number of ${name} was already deleted from server`)
+          setPersons(persons.filter(p =>  p.name !== name))
+        })
+    }
   }
 
   return (
@@ -69,7 +88,7 @@ const App = () => {
         onChangeNumberHandler={handleNumberChange}
       />
       <h2>Numbers</h2>
-      <Persons persons={personsToShow} />
+      <Persons persons={personsToShow} onClickHandler={handleOnClickDelete} />
     </div>
   )
 }
