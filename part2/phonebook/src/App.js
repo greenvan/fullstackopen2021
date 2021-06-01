@@ -30,8 +30,20 @@ const App = () => {
     event.preventDefault() //to prevent the default action of submitting HTML forms
 
     //Check if it is already in database
-    if (persons.find((person) => person.name === newName)) {
-      window.alert(`${newName} is already added to phonebook`)
+    const personInDB = persons.find((person) => person.name === newName)
+    if (personInDB) {
+
+      if (window.confirm(`${newName} is already added to phonebook, replace the old number with the new one?`)) {
+        const changedPerson = { ...personInDB, number: newNumber }
+        phoneService
+          .update(personInDB.id, changedPerson)
+          .then(returnedPerson => {
+            setPersons(persons.map(person => person.name !== personInDB.name ? person : changedPerson))
+            setNewName('')
+            setNewNumber('')
+          })
+      }
+
     }
     else {
       const numberObject = { name: newName, number: newNumber }
@@ -66,11 +78,11 @@ const App = () => {
       phoneService
         .del(id)
         .then((req) => {
-          setPersons(persons.filter(p => p.name !== name))  
+          setPersons(persons.filter(p => p.name !== name))
         })
         .catch(error => {
           alert(`The number of ${name} was already deleted from server`)
-          setPersons(persons.filter(p =>  p.name !== name))
+          setPersons(persons.filter(p => p.name !== name))
         })
     }
   }

@@ -407,3 +407,35 @@ In `App.js` include the new const `handleOnClickDelete` and pass it to the `Pers
   
       <Persons persons={personsToShow} onClickHandler={handleOnClickDelete} />
 ```
+
+## Exercise 2.18*: PhoneBook step 10
+Allow updates.
+
+In `services/phones.js` add `update`:
+
+```js
+  const update = (id, newObject) => {
+    const request = axios.put(`${baseUrl}/${id}`, newObject)
+    return request.then(response => response.data)
+  }
+```
+
+In `App.js` inside `addNumber` function:
+
+```js
+  const personInDB = persons.find((person) => person.name === newName)
+    if (personInDB) {
+
+      if (window.confirm(`${newName} is already added to phonebook, replace the old number with the new one?`)) {
+        const changedPerson = { ...personInDB, number: newNumber }
+        phoneService
+          .update(personInDB.id, changedPerson)
+          .then(returnedPerson => {
+            setPersons(persons.map(person => person.name !== personInDB.name ? person : changedPerson))
+            setNewName('')
+            setNewNumber('')
+          })
+      }
+
+    }
+```
