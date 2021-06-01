@@ -290,3 +290,53 @@ Followed steps
       })
   }, [])
 ```
+
+## Exercise 2.15 and 2.16: PhoneBook steps 7 and 8
+Save new numbers to a backend server
+
+Created file `services/phones.js`:
+
+```js
+import axios from 'axios'
+const baseUrl = 'http://localhost:3001/persons'
+
+const getAll = () => {
+    const request = axios.get(baseUrl)
+    return request.then(response => response.data)
+  }
+  
+  const create = newObject => {
+    const request = axios.post(baseUrl, newObject)
+    return request.then(response => response.data)
+  }
+
+  export default { getAll, create, update }
+```
+
+Updated `App.js`:
+
+```js
+import phoneService from './services/phones'
+
+[...]
+//Initial list
+  useEffect(() => {
+    phoneService
+      .getAll()
+      .then(initialList => {
+        setPersons(initialList)
+      })
+  }, [])
+
+  [...]
+  //Add new phone
+  const numberObject = { name: newName, number: newNumber }
+  phoneService
+    .create(numberObject)
+    .then(returnedPhone  => {
+        setPersons(persons.concat(returnedPhone))
+        setNewName('')
+        setNewNumber('')
+      }
+    )
+```
