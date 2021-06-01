@@ -253,5 +253,5 @@ JSON response for http://api.openweathermap.org/data/2.5/weather?q=Paris,FRA&uni
 ```
 Snapshots for the `countries` app:
 
-![Step 1](img/countries1.png)
-![Step 2](img/countries2.png)
+![Step 1](img/countries1.PNG)
+![Step 2](img/countries2.PNG)
