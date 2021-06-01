@@ -136,6 +136,9 @@ In App() at `App.js` a new state element has been added and a handler for the bu
 ```
 
 ## Exercise 2.14* Data for countries, step 3
+For this exercise I've used the weather API from https://openweathermap.org.
+* How to get json information: https://openweathermap.org/current 
+* How to get icon URL: https://openweathermap.org/weather-conditions
 
 Just `Country.js` file modified:
 
@@ -163,7 +166,8 @@ const Weather = ({ country }) => {
                 setWeather(response.data)
 
             })
-    }, [url]) //https://betterprogramming.pub/stop-lying-to-react-about-missing-dependencies-10612e9aeeda
+    }, [url]) 
+    //https://betterprogramming.pub/stop-lying-to-react-about-missing-dependencies-10612e9aeeda
 
     if (weather===''){
         return <p>No weather info</p>;
@@ -199,3 +203,55 @@ const Country = ({ country }) =>
 
 export default Country
 ```
+
+JSON response for http://api.openweathermap.org/data/2.5/weather?q=Paris,FRA&units=metric&appid={app_id}
+```json
+{
+  coord: {
+    lon: 2.3488,
+    lat: 48.8534
+  },
+  weather: [
+    {
+      id: 800,
+      main: "Clear",
+      description: "clear sky",
+      icon: "01d"
+    }
+  ],
+  base: "stations",
+  main: {
+    temp: 22.53,
+    feels_like: 21.83,
+    temp_min: 21.43,
+    temp_max: 23.47,
+    pressure: 1017,
+    humidity: 38
+  },
+  visibility: 10000,
+  wind: {
+    speed: 0.45,
+    deg: 312,
+    gust: 3.13
+  },
+  clouds: {
+    all: 0
+  },
+  dt: 1622462258,
+  sys: {
+    type: 2,
+    id: 2012208,
+    country: "FR",
+    sunrise: 1622433148,
+    sunset: 1622490269
+  },
+  timezone: 7200,
+  id: 2988507,
+  name: "Paris",
+  cod: 200
+}
+```
+Snapshots for the `countries` app:
+
+![Step 1](img/countries1.png)
+![Step 2](img/countries2.png)
