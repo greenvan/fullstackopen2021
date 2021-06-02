@@ -21,4 +21,6 @@ const getAll = () => {
     return request;
   }
 
-  export default { getAll, create, update , del}
+  const phoneService = { getAll, create, update, del }  
+
+  export default phoneService

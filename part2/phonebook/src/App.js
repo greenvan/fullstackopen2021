@@ -6,11 +6,14 @@ import Filter from './components/Filter'
 import PersonForm from './components/PersonForm'
 import Persons from './components/Persons'
 
+import Notification from './components/Notification'
+
 const App = () => {
   const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filter, setFilter] = useState('')
+  const [notificationMessage, setNotificationMessage] = useState(null)
 
   useEffect(() => {
     phoneService
@@ -38,6 +41,14 @@ const App = () => {
         phoneService
           .update(personInDB.id, changedPerson)
           .then(returnedPerson => {
+
+            setNotificationMessage(
+              `'${returnedPerson.name}' updated succesfully`
+            )
+            setTimeout(() => {
+              setNotificationMessage(null)
+            }, 5000)
+
             setPersons(persons.map(person => person.name !== personInDB.name ? person : changedPerson))
             setNewName('')
             setNewNumber('')
@@ -50,6 +61,12 @@ const App = () => {
       phoneService
         .create(numberObject)
         .then(returnedPhone => {
+          setNotificationMessage(
+            `Added '${returnedPhone.name}'`
+          )
+          setTimeout(() => {
+            setNotificationMessage(null)
+          }, 5000)
           setPersons(persons.concat(returnedPhone))
           setNewName('')
           setNewNumber('')
@@ -90,6 +107,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={notificationMessage} />
       <Filter filter={filter} onChangeHandler={handleFilterChange} />
       <h2>Add a new</h2>
       <PersonForm

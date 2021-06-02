@@ -358,7 +358,7 @@ export default Button;
 
 New function in `services/phones.js`
 
-´´´js
+```js
   const del = (id) => {
     const request = axios.delete(`${baseUrl}/${id}`)
     return request;
@@ -438,4 +438,97 @@ In `App.js` inside `addNumber` function:
       }
 
     }
+```
+
+## Exercise 2.19: PhoneBook step 11
+
+Added `components/Notification.js`:
+```js 
+import React from 'react'
+
+const Notification = ({ message }) => {
+    if (message === null) {
+      return null
+    }
+  
+    return (
+      <div className="notification">
+        {message}
+      </div>
+    )
+  }
+
+  export default Notification
+``` 
+
+Added `index.css`:
+
+```css
+  .notification {
+    color: green;
+    background: lightgrey;
+    font-size: 20px;
+    border-style: solid;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;    
+    max-width: 500px;
+  }
+```
+Import css to `index.js`:
+```js
+import './index.css'
+```
+
+Modify `App.js`:
+
+```js 
+import Notification from './components/Notification'
+[...]
+//New state declaration
+  const [notificationMessage, setNotificationMessage] = useState(null)
+[...]
+
+//Modify addNumber function to show different messages when added or updated
+const addNumber = (event) => {
+    event.preventDefault() 
+    const personInDB = persons.find((person) => person.name === newName)
+    if (personInDB) {
+
+      if (window.confirm(`${newName} is already added to phonebook, replace the old number with the new one?`)) {
+        const changedPerson = { ...personInDB, number: newNumber }
+        phoneService
+          .update(personInDB.id, changedPerson)
+          .then(returnedPerson => {
+            //Notification
+            setNotificationMessage(`'${returnedPerson.name}' updated succesfully`)
+            setTimeout(() => {setNotificationMessage(null)}, 5000)
+
+            setPersons(persons.map(person => person.name !== personInDB.name ? person : changedPerson))
+            setNewName('')
+            setNewNumber('')
+          })
+      }
+
+    }
+    else {
+      const numberObject = { name: newName, number: newNumber }
+      phoneService
+        .create(numberObject)
+        .then(returnedPhone => {
+          //Notification
+          setNotificationMessage(`Added '${returnedPhone.name}'`)
+          setTimeout(() => {setNotificationMessage(null)}, 5000)
+
+          setPersons(persons.concat(returnedPhone))
+          setNewName('')
+          setNewNumber('')
+        })
+    }
+  }
+
+  [...]
+      //Add the Notification component after h2 title
+      <h2>Phonebook</h2>
+      <Notification message={notificationMessage} />
 ```
