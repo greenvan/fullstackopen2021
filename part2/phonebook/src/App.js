@@ -5,8 +5,10 @@ import phoneService from './services/phones'
 import Filter from './components/Filter'
 import PersonForm from './components/PersonForm'
 import Persons from './components/Persons'
+import Footer from './components/Footer'
 
 import Notification from './components/Notification'
+import Error from './components/Error'
 
 const App = () => {
   const [persons, setPersons] = useState([])
@@ -14,6 +16,7 @@ const App = () => {
   const [newNumber, setNewNumber] = useState('')
   const [filter, setFilter] = useState('')
   const [notificationMessage, setNotificationMessage] = useState(null)
+  const [errorMessage, setErrorMessage] = useState(null)
 
   useEffect(() => {
     phoneService
@@ -41,17 +44,18 @@ const App = () => {
         phoneService
           .update(personInDB.id, changedPerson)
           .then(returnedPerson => {
-
-            setNotificationMessage(
-              `'${returnedPerson.name}' updated succesfully`
-            )
-            setTimeout(() => {
-              setNotificationMessage(null)
-            }, 5000)
+            setNotificationMessage(`'${returnedPerson.name}' updated succesfully`)
+            setTimeout(() => {setNotificationMessage(null)}, 5000)
 
             setPersons(persons.map(person => person.name !== personInDB.name ? person : changedPerson))
             setNewName('')
             setNewNumber('')
+          })
+          .catch(error => {       //If it is shortly removed before update     
+            setErrorMessage(`The number of '${personInDB.name}' was removed from server`)
+            setTimeout(() => {setErrorMessage(null)}, 5000)
+            setPersons(persons.filter(p => p.name !== personInDB.name))
+            //We do not setNewName('') nor setNewNumber(''), so it is posible for the user to add with this info
           })
       }
 
@@ -61,12 +65,8 @@ const App = () => {
       phoneService
         .create(numberObject)
         .then(returnedPhone => {
-          setNotificationMessage(
-            `Added '${returnedPhone.name}'`
-          )
-          setTimeout(() => {
-            setNotificationMessage(null)
-          }, 5000)
+          setNotificationMessage(`Added '${returnedPhone.name}'`)
+          setTimeout(() => {setNotificationMessage(null)}, 5000)
           setPersons(persons.concat(returnedPhone))
           setNewName('')
           setNewNumber('')
@@ -90,24 +90,28 @@ const App = () => {
     const name = event.target.name
 
     if (window.confirm(`Delete '${name}'?`)) {
-
       const id = event.target.value
       phoneService
         .del(id)
         .then((req) => {
+          setNotificationMessage(`'${name}' deleted succesfully`)
+          setTimeout(() => {setNotificationMessage(null)}, 5000)
           setPersons(persons.filter(p => p.name !== name))
         })
         .catch(error => {
-          alert(`The number of ${name} was already deleted from server`)
+          setErrorMessage(`The number of '${name}' was already removed from server`)
+          setTimeout(() => {setErrorMessage(null)}, 5000)
           setPersons(persons.filter(p => p.name !== name))
         })
     }
+
   }
 
   return (
     <div>
       <h2>Phonebook</h2>
       <Notification message={notificationMessage} />
+      <Error message={errorMessage} />
       <Filter filter={filter} onChangeHandler={handleFilterChange} />
       <h2>Add a new</h2>
       <PersonForm
@@ -119,6 +123,7 @@ const App = () => {
       />
       <h2>Numbers</h2>
       <Persons persons={personsToShow} onClickHandler={handleOnClickDelete} />
+      <Footer />
     </div>
   )
 }
