@@ -534,7 +534,8 @@ const addNumber = (event) => {
 ```
 
 
-## Exercise 2.20*: PhoneBook step 12Added `components/Notification.js`:
+## Exercise 2.20*: PhoneBook step 12
+
 Added `components/Error.js`:
 
 ```js 
@@ -555,7 +556,7 @@ const Error = ({ message }) => {
   export default Error
 ``` 
 
-Added error class `index.css`:
+Added error class to `index.css`:
 
 ```css
   .error {
@@ -571,6 +572,9 @@ Added error class `index.css`:
 ```
 
 `App.js` is in this state at the moment:
+
+1. 'Green' Notification messages are shown whenever it takes place a succesful event: add, modify or delete
+2. 'Red' Error messages are shown when some sort of error takes place at deleting or modifying.
 
 ```js
 import React, { useState, useEffect } from 'react'
