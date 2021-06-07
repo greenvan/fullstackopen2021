@@ -9,7 +9,7 @@ This is a compilation of the exercises completed for the course
 - [Part 0: Fundamentals of Web apps](part0/README.md)
 - [Part 1: Introduction to React](part1/README.md)
 - [Part 2: Communicating with server](part2/README.md)
-- Part 3: Programming a server with NodeJS and Express
+- [Part 3: Programming a server with NodeJS and Express](part3/README.md)
 - Part 4: Testing Express servers, user administration
 - Part 5: Testing React apps
 - Part 6: State management with Redux
