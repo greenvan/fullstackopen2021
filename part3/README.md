@@ -307,4 +307,254 @@ const baseUrl = '/api/persons'
   }
 ```
 
-   
+## Exercise 3.12 Command-line database at MongoDB
+1. Create: Organization, Project and Cluster (AWS, Frankfurt)
+2. Database Access --> Create database user, read and Write
+3. Network Access --> Allow from anywhere
+4. Clusters --> Connect
+
+```
+mongodb+srv://fullstack:<password>@cluster0.3ji6l.mongodb.net/myFirstDatabase?retryWrites=true&w=majority
+```
+
+5. Install Mongoose `npm install mongoose`
+6. Create mongo.js:
+
+```js
+const mongoose = require('mongoose')
+
+if (process.argv.length < 3) {
+  console.log('Please provide the password as an argument: node mongo.js <password>')
+  process.exit(1)
+}
+
+const password = process.argv[2]
+
+const url =
+  `mongodb+srv://fullstack:${password}@cluster0.3ji6l.mongodb.net/phone-app?retryWrites=true&w=majority`
+
+mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false, useCreateIndex: true })
+
+const personSchema = new mongoose.Schema({
+  name: String,
+  number: String,
+})
+
+const Person = mongoose.model('Person', personSchema)
+
+//Add new Person: node mongo.js yourpassword "Arto Vihavainen" 045-1232456
+if (process.argv.length === 5) {
+  const person = new Person({
+    name: process.argv[3],
+    number: process.argv[4],
+  })
+
+  person.save().then(result => {
+    console.log(`Added ${result.name} number ${result.number} to phonebook`)
+    mongoose.connection.close()
+  })
+
+}
+else { //Show list: node mongo.js yourpassword
+
+  Person.find({}).then(result => {
+
+    console.log('Phonebook:')
+    result.forEach(person => {
+      console.log(`${person.name} ${person.number}`)
+    })
+    
+    mongoose.connection.close()
+  })
+
+}
+```
+
+## Exercise 3.13: Phonebook database, step 1
+1. Create new module file `models/person.js` as guided in `notes-app` examples: 
+```js
+const mongoose = require('mongoose')
+
+const url = process.env.MONGODB_URI
+
+console.log('connecting to', url)
+
+mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false, useCreateIndex: true })
+  .then(result => {
+    console.log('connected to MongoDB')
+  })
+  .catch((error) => {
+    console.log('error connecting to MongoDB:', error.message)
+  })
+
+const personSchema = new mongoose.Schema({
+  name: String,
+  number: String,
+})
+
+personSchema.set('toJSON', {
+  transform: (document, returnedObject) => {
+    returnedObject.id = returnedObject._id.toString()
+    delete returnedObject._id
+    delete returnedObject.__v
+  }
+})
+
+module.exports = mongoose.model('Person', personSchema)
+```
+2. In index.js: `const Person = require('./models/person')`
+3. Define environment variables
+
+    3.1 Install dotenv library: `npm install dotenv`
+
+    3.2 Create .env file and edit index.js to include the variables.
+
+```js
+MONGODB_URI='mongodb+srv://fullstack:XPASSWORDX@XXclusterdb.mongodb.netXXX/phone-app?retryWrites=true&w=majority'
+PORT=3001
+```
+In index.js, add this line before  the note model is imported
+  ```js
+  require('dotenv').config()
+  ``` 
+
+4. Modify index.js in order to use database in route handlers:
+
+```js
+const Person = require('./models/person')
+
+app.get('/api/persons', (request, response) => {
+    Person.find({}).then(persons => {
+        response.json(persons)
+    })
+})
+
+```
+
+## Exercise 3.14: Phonebook database, step 2
+
+Edit post part in `index.js`
+
+```js
+app.post('/api/persons', (request, response) => {
+    const body = request.body
+    if (!body.name) {
+        return response.status(400).json({ error: 'Name is missing' });
+    }
+    if (!body.number) {
+        return response.status(400).json({ error: 'Number is missing' })
+    }
+
+    const person = new Person({
+        name: body.name,
+        number: body.number,
+    })
+
+    person.save().then(savedPerson => {
+        response.json(person)
+    })
+
+})
+```
+
+## Exercise 3.15: Phonebook database, step 3
+
+Deleting from database, in `index.js` file:
+
+```js 
+app.delete('/api/persons/:id', (request, response) => {
+
+    Person.findByIdAndRemove(request.params.id)
+    .then(response.status(204).end())
+    
+})
+```
+
+## Exercise 3.16: Phonebook database, step 4
+New error handler middleware
+
+
+```js
+app.get('/api/persons/:id', (request, response, next) => {
+    Person.findById(request.params.id)
+        .then((person) => {
+            if (person) { response.json(person.toJSON()) }
+            else { response.status(404).end() }
+        })
+        .catch(error => next(error))
+})
+
+[...]
+
+app.delete('/api/persons/:id', (request, response, next) => {
+
+    Person.findByIdAndRemove(request.params.id)
+        .then(response.status(204).end())
+        .catch(error => next(error))
+})
+
+[...]
+
+const unknownEndpoint = (request, response) => {
+    response.status(404).send({ error: 'unknown endpoint' })
+}
+// handler of requests with unknown endpoint
+app.use(unknownEndpoint)
+
+
+const errorHandler = (error, request, response, next) => {
+    console.error(error.message)
+
+    if (error.name === 'CastError') {
+        return response.status(400).send({ error: 'malformatted id' })
+    }
+
+    next(error)
+}
+
+app.use(errorHandler)
+
+
+```
+
+## Exercise 3.17*: Phonebook database, step 5
+Update existing entry with new number:
+
+```js
+app.put('/api/persons/:id', (request, response, next) => {
+    const body = request.body
+
+    const person = {
+        name: body.name,
+        number: body.number,
+    }
+
+    Person.findByIdAndUpdate(request.params.id, person, { new: true })
+        .then(updatedPerson => {
+            response.json(updatedPerson)
+        })
+        .catch(error => next(error))
+})
+```
+
+## Exercise 3.18*: Phonebook database step 6
+
+```js
+app.get('/info', (request, response) => {
+    Person.find({}).then(persons => {
+        const how_many = persons.length
+        response.send(`<p>Phonebook has info for ${how_many} people</p>` +
+            '<p>' + Date() + '</p>')
+    })
+})
+
+
+app.get('/api/persons/:id', (request, response, next) => {
+    Person.findById(request.params.id)
+        .then((person) => {
+            if (person) { response.json(person.toJSON()) }
+            else { response.status(404).end() }
+        })
+        .catch(error => next(error))
+})
+```
