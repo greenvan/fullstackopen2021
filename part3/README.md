@@ -1,14 +1,43 @@
 # Phone Book backend
 from *Part 3: Communicating with servert* of **Full Stack Course at the University of Helsinky (2021)**
 
-This is a compilation of exercises 3.1 to 3.21.
+This is a compilation of exercises 3.1 to 3.22.
 
-The app has been deployed using Heroku at this address:
-https://gv-fso-2021-part3.herokuapp.com/ 
+<b>The app has been deployed using Heroku at this address:
+https://gv-fso-2021-part3.herokuapp.com/ </b>
 
 The code of the backend app can be found inside ['phonebook-backend'](https://github.com/greenvan/fullstackopen2021/tree/main/part3/phonebook-backend) folder
 
 The code of the frontend app can be found inside ['phonebook-frontend'](https://github.com/greenvan/fullstackopen2021/tree/main/part3/phonebook-frontend) folder
+
+- [Phone Book backend](#phone-book-backend)
+  * [Exercise 3.1: PhoneBook backend step 1](#exercise-31--phonebook-backend-step-1)
+  * [Exercise 3.2: PhoneBook backend step 2](#exercise-32--phonebook-backend-step-2)
+  * [Exercise 3.3: PhoneBook backend step 3](#exercise-33--phonebook-backend-step-3)
+  * [Exercise 3.4: PhoneBook backend step 4](#exercise-34--phonebook-backend-step-4)
+  * [Exercise 3.5: PhoneBook backend step 5](#exercise-35--phonebook-backend-step-5)
+  * [Exercise 3.6: PhoneBook backend step 6](#exercise-36--phonebook-backend-step-6)
+  * [Exercise 3.7: PhoneBook backend step 7](#exercise-37--phonebook-backend-step-7)
+  * [Exercise 3.8*: PhoneBook backend step 8](#exercise-38---phonebook-backend-step-8)
+  * [Exercise 3.9: PhoneBook backend step 9](#exercise-39--phonebook-backend-step-9)
+- [Deploy to Heroku](#exercise-310--phonebook-backend-step-10)
+  * [Exercise 3.10: PhoneBook backend step 10](#exercise-310--phonebook-backend-step-10)
+  * [Exercise 3.11: PhoneBook Full Stack](#exercise-311--phonebook-full-stack)
+- [Phone Book Database](#exercise-312-command-line-database-at-mongodb)
+  * [Exercise 3.12 Command-line database at MongoDB](#exercise-312-command-line-database-at-mongodb)
+  * [Exercise 3.13: Phonebook database, step 1](#exercise-313--phonebook-database--step-1)
+  * [Exercise 3.14: Phonebook database, step 2](#exercise-314--phonebook-database--step-2)
+  * [Exercise 3.15: Phonebook database, step 3](#exercise-315--phonebook-database--step-3)
+  * [Exercise 3.16: Phonebook database, step 4](#exercise-316--phonebook-database--step-4)
+  * [Exercise 3.17*: Phonebook database, step 5](#exercise-317---phonebook-database--step-5)
+  * [Exercise 3.18*: Phonebook database step 6](#exercise-318---phonebook-database-step-6)
+  * [Exercise 3.19: Phonebook database step 7](#exercise-319--phonebook-database-step-7)
+  * [Exercise 3.20*: Phonebook database step 8](#exercise-320---phonebook-database-step-8)
+- [Phone Book final Full Stack](#exercise-321--deploying-the-database-backend-to-production)
+  * [Exercise 3.21: Deploying the database backend to production](#exercise-321--deploying-the-database-backend-to-production)
+  * [Exercise 3.22: Lint configuration](#exercise-322--lint-configuration)
+    + [Changes in the eslint rules](#changes-in-the-eslint-rules)
+    + [VSCode EsLint plugin](#vscode-eslint-plugin)
 
 ## Exercise 3.1: PhoneBook backend step 1
 
@@ -557,4 +586,194 @@ app.get('/api/persons/:id', (request, response, next) => {
         })
         .catch(error => next(error))
 })
+```
+
+## Exercise 3.19: Phonebook database step 7
+Validation
+1. Install mongoose-unique-validator `npm install mongoose-unique-validator`
+2. Edit `models/person.js` file following [mongoose-unique-validator tutorial](https://github.com/blakehaswell/mongoose-unique-validator#readme)
+
+```js
+const uniqueValidator = require('mongoose-unique-validator');
+
+const personSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+    unique: true
+  },
+  number: {
+    type: String,
+    required: true
+  },
+})
+
+// Apply the uniqueValidator plugin to userSchema.
+personSchema.plugin(uniqueValidator);
+```
+3. Propagate error to errorHandler instead of checking if fields are empty
+
+```js
+app.post('/api/persons', (request, response, next) => {
+    const body = request.body
+
+    const person = new Person({
+        name: body.name,
+        number: body.number,
+    })
+
+    person.save()
+        .then(savedPerson => savedPerson.toJSON())
+        .then(saveAndFormattedPerson => {
+            response.json(saveAndFormattedPerson)
+        })
+        .catch(error => next(error))
+
+})
+```
+4. Add new `else` to `errorHandler`
+```js
+ else if (error.name === 'ValidationError') {
+    return response.status(400).json({ error: error.message })
+  }
+```
+## Exercise 3.20*: Phonebook database step 8
+1. Add `minlength` field to mongoose schema at `model/person.js`file. Added a customized error message following tutorial at https://mongoosejs.com/docs/validation.html
+```js
+const personSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    minlength: [3, "Name '{VALUE}' is too short. Name field must have minimum lenght of 3 characters"],
+    required: true,
+    unique: true
+  },
+  number: {
+    type: String,
+    minlength: [8, "Number '{VALUE}' is too short. Number field must have minimum lenght of 8 characters"],
+    required: true
+  },
+})
+```
+2. Enable validators on update at PUT '/api/persons/:id' by using option `runValidators: true`. We also need context in order to enable mongoose-unique-validator too [Source:](//https://es.stackoverflow.com/questions/345025/mongoose-unique-validator-message-cannot-read-property-ownerdocument-of-nu)
+
+```js
+    Person.findByIdAndUpdate(
+        request.params.id,
+        person,
+        { new: true, //devuelve el objeto actualizado
+            runValidators: true, //aplica las validaciones del esquema del modelo
+            context: 'query' //necesario para las disparar las validaciones de mongoose-unique-validator
+        }
+    )
+        .then(updatedPerson => {
+            response.json(updatedPerson)
+        })
+        .catch(error => next(error))
+```
+3. Expand the frontend so that it displays an error message when a validation error occurs: Include this part after then() when in `phoneService.update(...)` and `phoneService.create(...)`
+```js
+       .catch(error => {
+          notifyWith(`Error: ${error.response.data}`,'error')
+          console.log(error.response.data)
+        })
+```
+
+## Exercise 3.21: Deploying the database backend to production
+1. Set Heroku environment variables:
+```bash
+$ heroku config:set MONGODB_URI='mongodb+srv://fullstack:secretpasswordhere@cluster.mongodb.net/phone-app?retryWrites=true'
+```
+2. Deploy to heroku the build folder using `npm run deploy:full`
+
+## Exercise 3.22: Lint configuration
+1. Install ESlint as a development dependency to the backend project with the command:
+```bash
+npm install eslint --save-dev
+```
+2. Initialize a default ESlint configuration with the command:
+```
+node_modules/.bin/eslint --init
+```
+The initial configuration will be saved in the .eslintrc.js file
+
+3. Create npm script so we can run with `npm run lint`
+```json
+{
+  // ...
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    // ...
+    "lint": "eslint ."
+  },
+  // ...
+}
+```
+4. In order to ignore `build` folder in the previous command, create an .eslintignore file in the project's root with the following contents:
+```
+build
+```
+
+### Changes in the eslint rules
+In the .eslintrc.js file, change several items:
+
+1. change the rule concerning indentation, so that the indentation level is two spaces.
+
+```json
+"indent": [
+    "error",
+    2
+],
+```
+2. Add the eqeqeq rule that warns us, if equality is checked with anything but the triple equals operator. 
+
+```json
+   'eqeqeq': 'error',
+```
+
+3. Prevent unnecessary trailing spaces at the ends of lines.
+```json
+    'no-trailing-spaces': 'error'
+```
+4. Require that there is always a space before and after curly braces.
+```json
+    'object-curly-spacing': [
+        'error', 'always'
+    ]
+```
+5. Demand a consistent use of whitespaces in the function parameters of arrow functions.
+
+```json
+    'arrow-spacing': [
+        'error', { 'before': true, 'after': true }
+    ]
+```
+
+6. Disable warns about console.log commands. We can enable by defining its "value" as '1'
+```
+'no-console': 0
+```
+
+7. In order to fix the process linting error, we must add `"node": true,` in `env` section.
+```json
+  {
+    "env": {
+        "node": true,
+
+        [...]
+  }
+```
+### VSCode EsLint plugin
+
+Install VS Code ESlint plugin (https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) and allow it access to the workspace.
+
+In order to have the formatter working with eslint we have to edit VSCode configuration file. Following this tutorial: https://daveceddia.com/vscode-use-eslintrc/ 
+
+Added this part to VSCode's configuration file:
+
+```json
+  "eslint.format.enable": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  }
 ```

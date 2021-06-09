@@ -50,16 +50,22 @@ const App = () => {
         phoneService
           .update(personInDB.id, changedPerson)
           .then(returnedPerson => {
+            //TODO:
+            // if(returnedPerson) //If it is shortly removed before update, returns null
             notifyWith(`'${returnedPerson.name}' updated succesfully`)
             
             setPersons(persons.map(person => person.name !== personInDB.name ? person : changedPerson))
             setNewName('')
             setNewNumber('')
           })
-          .catch(error => {       //If it is shortly removed before update     
-            notifyWith(`The number of '${personInDB.name}' was removed from server`,'error')
+          .catch(error => {       //If it is shortly removed before update, or validation error occurs     
+            console.log(error)
+              notifyWith(`Error: ${error.response.data.error}`,'error')
+              console.log(error.response.data.error)
 
-            setPersons(persons.filter(p => p.name !== personInDB.name))
+              //TODO:
+            //If it is shortly removed before update, then error occurs
+
             //We do not setNewName('') nor setNewNumber(''), so it is posible for the user to add with this info
           })
       }
@@ -75,6 +81,11 @@ const App = () => {
           setPersons(persons.concat(returnedPhone))
           setNewName('')
           setNewNumber('')
+        })
+        .catch(error => {
+          const textError=JSON.stringify(error.response.data.error)
+          notifyWith(`Error: ${textError}`,'error')
+          console.log(error.response.data)
         })
     }
   }

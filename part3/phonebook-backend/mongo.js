@@ -40,7 +40,7 @@ else { //Show list: node mongo.js yourpassword
     result.forEach(person => {
       console.log(`${person.name} ${person.number}`)
     })
-    
+
     mongoose.connection.close()
   })
 
