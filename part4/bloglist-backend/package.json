@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "test": "\"echo \\\"Error: no test specified\\\" && exit 1\"",
+    "test": "jest --verbose",
     "lint": "eslint ."
   },
   "author": "GreenVan (ROCIO CARRILLO)",
@@ -19,6 +19,10 @@
   },
   "devDependencies": {
     "eslint": "^7.28.0",
+    "jest": "^27.0.4",
     "nodemon": "^2.0.7"
+  },
+  "jest": {
+    "testEnvironment": "node"
   }
 }

@@ -215,3 +215,183 @@ const info = (...params) => {
     info, error
   }
 ```
+
+## Exercise 4.3: Helper functions and unit tests, step 1
+1. Create `utils/list_helper.js`
+2. Create `tests` folder.
+3. Install jest in development mode
+```bash
+npm install --save-dev jest
+```
+4. In `package.json` define `npm script test` and add `jest` section
+```json
+{
+  "scripts": {
+   //...
+    "test": "jest --verbose"
+ //...
+ "jest": {
+   "testEnvironment": "node"
+ }
+}
+```
+5. Add `"jest": true` to 'env' in `.eslintrc.js` file.
+6. Add to file `utils/list_helper.js` a `dummy` function that receives an array of blog posts as a parameter and always returns the value 1:
+```js
+const dummy = (blogs) => {
+  // Dummy test always returns 1
+  return 1
+}
+
+module.exports = {
+  dummy
+}
+```
+7. Create `tests/list_helper.test.js` with this content:
+```js
+const listHelper = require('../utils/list_helper')
+
+test('dummy returns one', () => {
+  const blogs = []
+
+  const result = listHelper.dummy(blogs)
+  expect(result).toBe(1)
+})
+```
+8. Run npm test
+
+## Exercise 4.4: Helper functions and unit tests, step 2
+`totalLikes` function in `utils/list_helper.js` file:
+```js
+const totalLikes = (blogs) => {
+  const reducer = (accumulator, current) => accumulator + current.likes
+  return blogs.reduce(reducer,0)
+}
+```
+Tests in `tests/list_helper.test.js`:
+```js
+
+describe('total likes', () => {
+  const listWithOneBlog = [
+    {
+      _id: '5a422aa71b54a676234d17f8',
+      title: 'Go To Statement Considered Harmful',
+      author: 'Edsger W. Dijkstra',
+      url: 'http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html',
+      likes: 5,
+      __v: 0
+    }
+  ]
+
+  test('when list has only one blog, equals the likes of that', () => {
+    const result = listHelper.totalLikes(listWithOneBlog)
+    expect(result).toBe(5)
+  })
+
+  const blogs = [
+    {
+      _id: '5a422a851b54a676234d17f7',
+      title: 'React patterns',
+      author: 'Michael Chan',
+      url: 'https://reactpatterns.com/',
+      likes: 7,
+      __v: 0
+    },
+    {
+      _id: '5a422aa71b54a676234d17f8',
+      title: 'Go To Statement Considered Harmful',
+      author: 'Edsger W. Dijkstra',
+      url: 'http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html',
+      likes: 5,
+      __v: 0
+    },
+    {
+      _id: '5a422b3a1b54a676234d17f9',
+      title: 'Canonical string reduction',
+      author: 'Edsger W. Dijkstra',
+      url: 'http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html',
+      likes: 12,
+      __v: 0
+    },
+    {
+      _id: '5a422b891b54a676234d17fa',
+      title: 'First class tests',
+      author: 'Robert C. Martin',
+      url: 'http://blog.cleancoder.com/uncle-bob/2017/05/05/TestDefinitions.htmll',
+      likes: 10,
+      __v: 0
+    },
+    {
+      _id: '5a422ba71b54a676234d17fb',
+      title: 'TDD harms architecture',
+      author: 'Robert C. Martin',
+      url: 'http://blog.cleancoder.com/uncle-bob/2017/03/03/TDD-Harms-Architecture.html',
+      likes: 0,
+      __v: 0
+    },
+    {
+      _id: '5a422bc61b54a676234d17fc',
+      title: 'Type wars',
+      author: 'Robert C. Martin',
+      url: 'http://blog.cleancoder.com/uncle-bob/2016/05/01/TypeWars.html',
+      likes: 2,
+      __v: 0
+    }
+  ]
+
+  test('Ready-made list',() => {
+    const result = listHelper.totalLikes(blogs)
+    expect(result).toBe(36)
+  }
+  )
+
+  test('Empty list',() => {
+    const result = listHelper.totalLikes([])
+    expect(result).toBe(0)
+  }
+  )
+})
+```
+
+## Exercise 4.5*: Helper functions and unit tests, step 3
+`favoriteBlog` function in `utils/list_helper.js`: 
+```js
+const favoriteBlog = (blogs) => {
+  if(blogs.length === 0) return null
+
+  const reducer = (accumulator, current) => current.likes > accumulator.likes ? current : accumulator
+  const favorite = blogs.reduce(reducer)
+
+  return {
+    title: favorite.title,
+    author: favorite.author,
+    likes: favorite.likes,
+  }
+}
+```
+Test section in `tests/list_helper.test.js`:
+
+```js
+describe('Favorite Blog', () => {
+  test('Empty list',() => {
+    const result = listHelper.favoriteBlog([])
+    expect(result).toEqual(null)
+  }
+  )
+
+  const favorite = {
+    title: 'Canonical string reduction',
+    author: 'Edsger W. Dijkstra',
+    likes: 12
+  }
+
+  test('Favorite Blog is Canonical string reduction',() => {
+    const result = listHelper.favoriteBlog(blogs)
+    expect(result).toEqual(favorite)
+  }
+  )
+})
+```
+## Exercise 4.6*: Helper functions and unit tests, step 4
+
+
