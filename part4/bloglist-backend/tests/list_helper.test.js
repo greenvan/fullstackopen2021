@@ -108,3 +108,41 @@ describe('Favorite Blog', () => {
   }
   )
 })
+
+describe('mostBlogs', () => {
+  test('Empty list',() => {
+    const result = listHelper.mostBlogs([])
+    expect(result).toEqual(null)
+  }
+  )
+
+  const mostBlogger = {
+    author: 'Robert C. Martin',
+    blogs: 3
+  }
+
+  test('Most blogger is Robert C. Martin with 3 blogs',() => {
+    const result = listHelper.mostBlogs(blogs)
+    expect(result).toEqual(mostBlogger)
+  }
+  )
+})
+
+describe('mostLikes', () => {
+  test('Empty list',() => {
+    const result = listHelper.mostLikes([])
+    expect(result).toEqual(null)
+  }
+  )
+
+  const mostLiked = {
+    author: 'Edsger W. Dijkstra',
+    likes: 17
+  }
+
+  test('Most liked is Edsger W. Dijkstra with 17 Likes',() => {
+    const result = listHelper.mostLikes(blogs)
+    expect(result).toEqual(mostLiked)
+  }
+  )
+})

@@ -392,6 +392,88 @@ describe('Favorite Blog', () => {
   )
 })
 ```
-## Exercise 4.6*: Helper functions and unit tests, step 4
 
+## Exercise 4.6*: Helper functions and unit tests, step 4
+Lodash library https://lodash.com/ 
+1. Install:
+```bash
+$ npm i -g npm
+$ npm i lodash
+```
+2. Load the full build in `utils/list_helper.js`:
+```js
+var _ = require('lodash')
+```
+3. Create mostBlogs function in `utils/list_helper.js`:
+```js
+const mostBlogs = (blogs) => {
+  if(blogs.length === 0) return null
+
+  const numBlogsList = _.countBy(blogs,'author') //groupedBy + mapValues
+  const formattedNumBlogsList = _.map(numBlogsList, (value,key) => ({ author:key, blogs:value }))
+
+  return  _.maxBy(formattedNumBlogsList, 'blogs') //Max value of 'blogs' field
+}
+```
+4.Create Test section in `tests/list_helper.test.js`:
+```js
+describe('mostBlogs', () => {
+  test('Empty list',() => {
+    const result = listHelper.mostBlogs([])
+    expect(result).toEqual(null)
+  }
+  )
+
+  const mostBlogger = {
+    author: 'Robert C. Martin',
+    blogs: 3
+  }
+
+  test('Most blogger is Robert C. Martin with 3 blogs',() => {
+    const result = listHelper.mostBlogs(blogs)
+    expect(result).toEqual(mostBlogger)
+  }
+  )
+})
+```
+
+## Exercise 4.7*: Helper functions and unit tests, step 5
+1. Create `mostLikes` function in `utils/list_helper.js`:
+```js
+const mostLikes = (blogs) => {
+  if(blogs.length === 0) return null
+
+  function sumLikes(blogList){
+    return _.sumBy(blogList,'likes')
+  }
+
+  const groupedList = _.groupBy(blogs,'author') //Blog list for each author
+  const formattedgroupedList = _.map(groupedList,
+    (value,key) => ({ author:key, likes:sumLikes(value) }) //With each author, the sum of likes
+  )
+
+  return   _.maxBy(formattedgroupedList, 'likes') //Max value of 'likes' field
+}
+```
+2.Create Test section in `tests/list_helper.test.js`:
+```js
+describe('mostLikes', () => {
+  test('Empty list',() => {
+    const result = listHelper.mostLikes([])
+    expect(result).toEqual(null)
+  }
+  )
+
+  const mostLiked = {
+    author: 'Edsger W. Dijkstra',
+    likes: 17
+  }
+
+  test('Most liked is Edsger W. Dijkstra with 17 Likes',() => {
+    const result = listHelper.mostLikes(blogs)
+    expect(result).toEqual(mostLiked)
+  }
+  )
+})
+```
 

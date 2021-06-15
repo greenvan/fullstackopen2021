@@ -1,3 +1,6 @@
+// Load the full build.
+var _ = require('lodash')
+
 //const dummy = (blogs) => {
 const dummy = () => {
   // Dummy test always returns 1
@@ -22,8 +25,34 @@ const favoriteBlog = (blogs) => {
   }
 }
 
+const mostBlogs = (blogs) => {
+  if(blogs.length === 0) return null
+
+  const numBlogsList = _.countBy(blogs,'author') //groupedBy + mapValues
+  const formattedNumBlogsList = _.map(numBlogsList, (value,key) => ({ author:key, blogs:value }))
+
+  return  _.maxBy(formattedNumBlogsList, 'blogs') //Max value of 'blogs' field
+}
+
+const mostLikes = (blogs) => {
+  if(blogs.length === 0) return null
+
+  function sumLikes(blogList){
+    return _.sumBy(blogList,'likes')
+  }
+
+  const groupedList = _.groupBy(blogs,'author') //Blog list for each author
+  const formattedgroupedList = _.map(groupedList,
+    (value,key) => ({ author:key, likes:sumLikes(value) }) //With each author, the sum of likes
+  )
+
+  return   _.maxBy(formattedgroupedList, 'likes') //Max value of 'likes' field
+}
+
 module.exports = {
   dummy,
   totalLikes,
-  favoriteBlog
+  favoriteBlog,
+  mostBlogs,
+  mostLikes
 }
