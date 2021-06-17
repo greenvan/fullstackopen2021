@@ -477,3 +477,114 @@ describe('mostLikes', () => {
 })
 ```
 
+## Exercise 4.8: Blog list tests, step1
+
+1. Test environment
+  
+    1.1  As I am using windows it is neccessry to install cross-env:
+    `npm install --save-dev cross-env`
+
+    1.2 Edit scripts area in `package.json` by adding NODE_ENV and runInBand in 'test'
+
+    ```json
+      {
+        // ...
+        "scripts": {
+          "start": "cross-env NODE_ENV=production node index.js",
+          "dev": "cross-env NODE_ENV=development nodemon index.js",
+          // ...
+          "test": "cross-env NODE_ENV=test jest --verbose --runInBand",
+        },
+        // ...
+      }
+      ```
+
+   1.3 Changes to the module that defines the application's configuration
+`utils/config.js`
+
+     ```js
+     const MONGODB_URI = process.env.NODE_ENV === 'test' 
+       ? process.env.TEST_MONGODB_URI
+       : process.env.MONGODB_URI
+     ```
+
+   1.4. Add separate variables for the database addresses of the development and test databases in `.env` file
+
+2. Install supertest `npm install --save-dev supertest`
+
+3. Initialize the database before every test with the beforeEach function
+
+    3.1 Create `test/test_helper.js` with a list of the initial Blog list
+
+    3.2 Create `test/bloglist_api.test.js` file with the `beforeEach()` function in order to populate the database with the initial data.
+
+    ```js
+    const mongoose = require('mongoose')
+    const supertest = require('supertest')
+
+    const helper = require('./test_helper')
+
+    const app = require('../app')
+    const api = supertest(app)
+
+    const Blog = require('../models/blog')
+
+    beforeEach(async () => {
+      await Blog.deleteMany({})
+
+      const blogObjects = helper.initialBlogs
+        .map(blog => new Blog(blog))
+      const promiseArray = blogObjects.map(blog => blog.save())
+      await Promise.all(promiseArray)
+    })
+
+    // Tests go in this part [...]
+
+    afterAll(() => {
+      mongoose.connection.close()
+    })
+  
+    ```
+4. Write test for this exercise in  `test/bloglist_api.test.js` file
+
+    ```js
+    test('All blogs are returned as json', async () => {
+      const response = await api
+        .get('/api/blogs')
+        .expect(200)
+        .expect('Content-Type', /application\/json/)
+      expect(response.body).toHaveLength(helper.initialBlogs.length)
+    })
+    ```
+
+5. Run test with command `npm test -- tests/bloglist_api.test.js`
+
+6. Change logger so that it does not print to console in test mode
+
+    ```js
+    const info = (...params) => {
+      if (process.env.NODE_ENV !== 'test') { 
+        console.log(...params)
+      }
+    }
+
+    const error = (...params) => {
+      if (process.env.NODE_ENV !== 'test') { 
+        console.error(...params)
+      }
+    }
+  
+    module.exports = {
+      info, error
+    }
+    ```
+
+7. Refactor the route handler to use the async/await syntax instead of promises
+
+    ```js
+      blogsRouter.get('/', async (request, response) => {
+        const blogs = await Blog.find({})
+        response.json(blogs)
+      })
+    ```
+8. Test again `npm test -- tests/bloglist_api.test.js` and see if everything works fine
