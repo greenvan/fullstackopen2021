@@ -477,7 +477,7 @@ describe('mostLikes', () => {
 })
 ```
 
-## Exercise 4.8: Blog list tests, step1
+## Exercise 4.8: Blog list tests, step 1
 
 1. Test environment
   
@@ -548,7 +548,7 @@ describe('mostLikes', () => {
 4. Write test for this exercise in  `test/bloglist_api.test.js` file
 
     ```js
-    test('All blogs are returned as json', async () => {
+    test('Ex 4.8: All blogs are returned as json', async () => {
       const response = await api
         .get('/api/blogs')
         .expect(200)
@@ -588,3 +588,175 @@ describe('mostLikes', () => {
       })
     ```
 8. Test again `npm test -- tests/bloglist_api.test.js` and see if everything works fine
+
+## Exercise 4.9*: Blog list tests, step 2
+
+1. Add a new test to `tests/bloglist_api.test.js`:
+    ```js
+    test('Ex 4.9: The unique identifier property of the blog posts is named id', async () => {
+      const response = await api.get('/api/blogs')
+      expect(response.body[0].id).toBeDefined()
+    })
+    ```
+2. Add toJSON method in `models/blog.js`
+    ```js
+    blogSchema.set('toJSON', {
+      transform: (document, returnedObject) => {
+        returnedObject.id = returnedObject._id.toString()
+        delete returnedObject._id
+        delete returnedObject.__v
+      }
+    })
+    ```
+
+## Exercise 4.10: Blog list tests, step 3
+1. Add new test to `tests/bloglist_api.test.js` an run it:
+    ```js 
+    test('Ex 4.10: A new blog can be added and is saved correctly to the database', async () => {
+      const newBlog =  {
+        title: 'My new title',
+        author: 'New blog\'s author',
+        url: 'https://newblogfakeurl.com/'
+      }
+      //Add new
+      await api
+        .post('/api/blogs')
+        .send(newBlog)
+        .expect(201) //Created
+        .expect('Content-Type', /application\/json/)
+
+      //Recover entries and check lenght has increased
+      const response = await api.get('/api/blogs')
+      expect(response.body).toHaveLength(helper.initialBlogs.length + 1)
+
+      //see if the new one is amongst them
+      const titles = response.body.map(b => b.title)
+      expect(titles).toContain(
+        'My new title'
+      )
+    })
+    ```
+
+2. Refactor route in `controllers/blogs.js`:
+    ```js
+    blogsRouter.post('/', async (request, response) => {
+      const blog = new Blog(request.body)
+      const result = await blog.save()
+
+      response.status(201).json(result)
+    })
+    ```
+
+3. Run tests again
+
+## Exercise 4.11*: Blog list tests, step 4
+
+1. Write the test that checks that if the likes property is missing from the request, it will default to the value 0
+    ```js
+    test('Ex 4.11: A bog with no likes takes 0 value as default', async () => {
+      const newBlog =  {
+        title: 'My blog at 4.11',
+        author: 'New blog\'s author',
+        url: 'https://newblogfakeurl.com/'
+      }
+      //Add new
+      const response = await api
+        .post('/api/blogs')
+        .send(newBlog)
+        .expect(201) //Created
+        .expect('Content-Type', /application\/json/)
+
+      expect(response.body.likes).toBe(0)
+    })
+    ```
+
+2. Redefine blogSchema in `models/blog.js`:
+
+    ```js
+    const blogSchema = new mongoose.Schema({
+      title: String,
+      author: String,
+      url: String,
+      likes:  { type: Number, default: 0 }
+    })
+    ```
+
+## Exercise 4.12*: Blog list tests, step 5
+
+1. At this point if an error occurs there's no response, so it is neccesary to add error handling. In file `controllers/blogs.js` modify the route with try-catch:
+    ```js
+    blogsRouter.post('/', async (request, response,next) => {
+      try{
+        const blog = new Blog(request.body)
+        const result = await blog.save()
+
+        response.status(201).json(result)
+      } catch (error){
+        next(error)
+      }
+    })
+    ```
+    Or as an alternative, install https://github.com/davidbanham/express-async-errors with `npm install express-async-errors` and in `app.js` add the following line:
+
+    ```js
+      require('express-async-errors')
+    ```
+    in order to pass the error handling to the middleware.
+
+2. Add errorHandler in file `utils/middleware.js`. (Unknown endpoint is not yet asked): 
+    ```js
+      const logger = require('./logger')
+
+      const unknownEndpoint = (request, response) => {
+        response.status(404).send({ error: 'unknown endpoint' })
+      }
+
+      const errorHandler = (error, request, response, next) => {
+        logger.error(error.message)
+
+        if (error.name === 'CastError') {
+          return response.status(400).send({ error: 'malformatted id' })
+        } else if (error.name === 'ValidationError') {
+          return response.status(400).json({ error: error.message }) 
+        }
+
+        next(error)
+      }
+
+      module.exports = {
+        unknownEndpoint,
+        errorHandler
+      }
+      ```
+3. In file `app.js` add the following:
+    ```js
+    const middleware = require('./utils/middleware')
+    //...
+    app.use(middleware.unknownEndpoint)
+    app.use(middleware.errorHandler)
+    ```
+4. Write test in `tests/bloglist_api.test.js`
+    ```js
+    test('Ex 4.12: A blog with no title or no url returns status code 400 Bad Request', async () => {
+
+      const newBlogNoTitle =  {
+        author: 'Author of the blog at 4.12 with no title',
+        url: 'https://newblogfakeurl.com/'
+      }
+      const newBlogNoUrl =  {
+        title: 'My blog at 4.12 with no url'
+      }
+
+      //Add new with no title
+      await api
+        .post('/api/blogs')
+        .send(newBlogNoTitle)
+        .expect(400) //Bad Request
+      //Add new with no url
+      await api
+        .post('/api/blogs')
+        .send(newBlogNoUrl)
+        .expect(400) //Bad Request
+    })
+    ```
+
