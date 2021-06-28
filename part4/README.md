@@ -760,3 +760,126 @@ describe('mostLikes', () => {
     })
     ```
 
+
+## Exercise 4.13: Blog list expansions, step 1
+Implement functionality for deleting a single blog post resource.
+
+1. In `controllers/blogs.js` add new route:
+
+    ```js
+    blogsRouter.delete('/:id', async(request, response) => {
+      await Blog.findByIdAndDelete(request.params.id)
+      response.status(204).end() // If it doesn't exist the result is the same (blog deleted)
+    })
+    ```
+2. Write function helpers in `tests/test_helper.js`:
+    ```js
+    const nonExistingId = async () => {
+      const blog = new Blog({ title: 'willremovethissoon', url: 'nonexistingurl' })
+      await blog.save()
+      await blog.remove()
+
+      return blog._id.toString()
+    }
+
+    const blogsInDb = async () => {
+      const blogs = await Blog.find({})
+      return blogs.map(blog => blog.toJSON())
+    }
+    ```
+3. Write test section in `tests/bloglist_api.test.js`:
+    ```js    
+    describe('Deletion of a blog',() => {
+
+      test('Ex 4.13a: Deletion of an existing blog, succeeds with status code 204', 
+        async() => {
+          const blogsAtStart = await helper.blogsInDb()
+          const blogToDelete = blogsAtStart[0]
+          await api
+            .delete(`/api/blogs/${blogToDelete.id}`)
+            .expect(204)
+
+          const blogsAtEnd = await helper.blogsInDb()
+          expect(blogsAtEnd).toHaveLength(blogsAtStart.length - 1)
+      })
+
+      test('Ex 4.13b: Deletion of a non existing blog, also succeeds with status code 204, but no deletion occurred', async() => {
+        const blogsAtStart = await helper.blogsInDb()
+        const deletedId = await helper.nonExistingId()
+        await api
+          .delete(`/api/blogs/${deletedId}`)
+          .expect(204)
+
+        const blogsAtEnd = await helper.blogsInDb()
+        expect(blogsAtEnd).toHaveLength(blogsAtStart.length)
+      })
+
+    })
+    ```
+## Exercise 4.14: Blog list expansions, step 2
+Implement functionality for updating the information of an individual blog post.
+
+1. In `controllers/blogs.js` add new route: On update operation validation is not enabled by default, must include `runValidators: true` option.
+    ```js
+    blogsRouter.put('/:id', async(request, response) => {
+      const blog = new Blog(request.body)
+      const result = await Blog.findByIdAndUpdate(request.params.id, blog, { new: true, runValidators: true })
+
+      response.status(201).json(result)
+    })
+    ```
+2. Write test section in `tests/bloglist_api.test.js`:
+    ```js
+    describe('Updating a blog',() => {
+
+      test('Ex 4.14a: Updating an existing blog well formatted, succeeds with status code 201',async() => {
+        const blogsAtStart = await helper.blogsInDb()
+        const blogToUpdate = {
+          title:  'My updated title',
+          author: blogsAtStart[0].author,
+          likes: blogsAtStart[0].likes + 1,
+          url: blogsAtStart[0].url
+        }
+        await api
+          .put(`/api/blogs/${blogsAtStart[0].id}`)
+          .send(blogToUpdate)
+          .expect(201)
+
+        const blogsAtEnd = await helper.blogsInDb()
+        const titles = blogsAtEnd.map(blog => blog.title)
+        expect(titles).toContain(
+          'My updated title'
+        )
+      })
+
+      test('Ex 4.14b: Updating a non existing blog returns status code 404',async() => {
+        const nonExistingId = await helper.nonExistingId()
+        const blogToUpdate =  {
+          title: 'My blog at 4.14',
+          author: 'New blog\'s author',
+          url: 'https://newblogfakeurl.com/'
+        }
+        await api
+          .put(`/api/blogs/${nonExistingId}`)
+          .send(blogToUpdate)
+          .expect(404)
+
+      })
+
+      test('Ex 4.14c: Updating an existing blog not well formatted, must not succed: status 400',async() => {
+        const blogsAtStart = await helper.blogsInDb()
+
+        const newBlogNoTitle =  {
+          author: 'Author of the blog at 4.14 with no title',
+          url: 'https://newblogfakeurl.com/'
+        }
+        await api
+          .put(`/api/blogs/${blogsAtStart[0].id}`)
+          .send(newBlogNoTitle)
+          .expect(400)
+
+      })
+
+    })
+    ```
+ 
