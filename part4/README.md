@@ -882,4 +882,170 @@ Implement functionality for updating the information of an individual blog post.
 
     })
     ```
- 
+##  Exercise 4.15: Blog list expansions, step 3
+Implement a way to create new users by doing a HTTP POST-request to address api/users. Users have username, password and name.
+1. Create a Mongoose schema in the `models/user.js` file:
+    ```js
+    const mongoose = require('mongoose')
+
+    const userSchema = new mongoose.Schema({
+      username: String,
+      name: String,
+      passwordHash: String
+    })
+
+    userSchema.set('toJSON', {
+      transform: (document, returnedObject) => {
+        returnedObject.id = returnedObject._id.toString()
+        delete returnedObject._id
+        delete returnedObject.__v
+        // the passwordHash should not be revealed
+        delete returnedObject.passwordHash
+      }
+    })
+
+    const User = mongoose.model('User', userSchema)
+
+    module.exports = User
+    ```
+2. Implement a route for creating new users
+
+     2.1 Install bcrypt package (or bcryptjs if problems found on windows)
+     ```bash
+     npm install bcrypt
+     ``` 
+    2.2  Define a separate router for dealing with users in a new `controllers/users.js` file.
+    ```js
+    const bcrypt = require('bcrypt')
+    const usersRouter = require('express').Router()
+    const User = require('../models/user')
+
+    usersRouter.post('/', async (request, response) => {
+      const body = request.body
+
+      const saltRounds = 10
+      const passwordHash = await bcrypt.hash(body.password, saltRounds)
+
+      const user = new User({
+        username: body.username,
+        name: body.name,
+        passwordHash,
+      })
+
+      const savedUser = await user.save()
+
+      response.json(savedUser)
+    })
+
+    module.exports = usersRouter
+    ```
+    2.3 Take the router into use in the `app.js` file, so that it handles requests made to the /api/users url
+    ```js
+    const usersRouter = require('./controllers/users')
+    // ...
+    app.use('/api/users', usersRouter)
+    ```
+3. Write test:
+    
+    3.1 Add new test area to `tsts/bloglist_api.test.js`:
+    ```js
+    const bcrypt = require('bcrypt')
+    const User = require('../models/user')
+
+    //...
+
+    describe('when there is initially one user in db', () => {
+      beforeEach(async () => {
+        await User.deleteMany({})
+
+        const passwordHash = await bcrypt.hash('sekret', 10)
+        const user = new User({ username: 'root', passwordHash })
+
+        await user.save()
+      })
+
+      test('creation succeeds with a fresh username', async () => {
+        const usersAtStart = await helper.usersInDb()
+
+        const newUser = {
+          username: 'greenvan',
+          name: 'ROCIO CARRILLO',
+          password: 'mypass',
+        }
+
+        await api
+          .post('/api/users')
+          .send(newUser)
+          .expect(200)
+          .expect('Content-Type', /application\/json/)
+
+        const usersAtEnd = await helper.usersInDb()
+        expect(usersAtEnd).toHaveLength(usersAtStart.length + 1)
+
+        const usernames = usersAtEnd.map(u => u.username)
+        expect(usernames).toContain(newUser.username)
+      })
+    })
+    ```
+    3.2 Implement `usersInDb()` function in `tests/test_helper.js`:
+    ```js
+    const User = require('../models/user')
+
+    // ...
+
+    const usersInDb = async () => {
+      const users = await User.find({})
+      return users.map(u => u.toJSON())
+    }
+    ```
+4. Add uniqueness validation
+    4.1 Write the new test first although it will not yet pass:
+    ```js
+    test('creation fails with proper statuscode and message if username already taken', async () => {
+      const usersAtStart = await helper.usersInDb()
+
+      const newUser = {
+        username: 'root',
+        name: 'Superuser',
+        password: 'salainen',
+      }
+
+      const result = await api
+        .post('/api/users')
+        .send(newUser)
+        .expect(400)
+        .expect('Content-Type', /application\/json/)
+
+      expect(result.body.error).toContain('`username` to be unique')
+
+      const usersAtEnd = await helper.usersInDb()
+      expect(usersAtEnd).toHaveLength(usersAtStart.length)
+    })
+    ```
+    4.2 Install mongoose-unique-validator npm package: `npm install mongoose-unique-validator`
+    4.3 Change the schema:
+    ```js
+    const uniqueValidator = require('mongoose-unique-validator')
+    //[...]
+    const userSchema = new mongoose.Schema({
+      username: {
+        type:String,
+        unique: true
+      },
+      name: String,
+      passwordHash: String
+    
+    //[...]
+    userSchema.plugin(uniqueValidator)
+    ```
+    
+**5. --->TODO: Add validator for permitted charactersXXXXXXXXXXXXXXXXXXXXXXXXXXX**
+
+6. Add an initial route handler that returns all of the users in the database:
+
+    ```js
+    usersRouter.get('/', async (request, response) => {
+      const users = await User.find({})
+      response.json(users)
+    })
+    ```
