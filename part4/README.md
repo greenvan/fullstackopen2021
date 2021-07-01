@@ -998,8 +998,35 @@ Implement a way to create new users by doing a HTTP POST-request to address api/
       return users.map(u => u.toJSON())
     }
     ```
-4. Add uniqueness validation
-    4.1 Write the new test first although it will not yet pass:
+
+4. Add an initial route handler that returns all of the users in the database:
+
+    ```js
+    usersRouter.get('/', async (request, response) => {
+      const users = await User.find({})
+      response.json(users)
+    })
+    ```
+
+##  Exercise 4.16*: Blog list expansions, step 4
+    
+Add a feature which adds the following restrictions to creating new users: Both username and password must be given. Both username and password must be at least 3 characters long. The username must be unique.
+
+1. Username validation: required and must be at least 3 characters long.
+```js
+   const userSchema = new mongoose.Schema({
+      username: {
+        type:String,
+        minlength: [3, 'Username \'{VALUE}\' is too short. Username must have minimum lenght of 3 characters'],
+        required: true
+      },
+      name: String,
+      passwordHash: String
+    })
+```
+2. Username: Add uniqueness validation
+
+    2.1 Write the new test first although it will not yet pass:
     ```js
     test('creation fails with proper statuscode and message if username already taken', async () => {
       const usersAtStart = await helper.usersInDb()
@@ -1007,7 +1034,7 @@ Implement a way to create new users by doing a HTTP POST-request to address api/
       const newUser = {
         username: 'root',
         name: 'Superuser',
-        password: 'salainen',
+        password: 'mypass',
       }
 
       const result = await api
@@ -1022,30 +1049,101 @@ Implement a way to create new users by doing a HTTP POST-request to address api/
       expect(usersAtEnd).toHaveLength(usersAtStart.length)
     })
     ```
-    4.2 Install mongoose-unique-validator npm package: `npm install mongoose-unique-validator`
-    4.3 Change the schema:
+    2.2 Install mongoose-unique-validator npm package: `npm install mongoose-unique-validator`
+    2.3 Change the schema:
     ```js
     const uniqueValidator = require('mongoose-unique-validator')
     //[...]
     const userSchema = new mongoose.Schema({
       username: {
         type:String,
+        minlength: [3, 'Username \'{VALUE}\' is too short. Username must have minimum lenght of 3 characters'],
+        required: true,
         unique: true
       },
       name: String,
       passwordHash: String
-    
+    })
     //[...]
     userSchema.plugin(uniqueValidator)
     ```
-    
-**5. --->TODO: Add validator for permitted charactersXXXXXXXXXXXXXXXXXXXXXXXXXXX**
 
-6. Add an initial route handler that returns all of the users in the database:
+3. Optional username validation: Add validator for permitted characters.
+   
+   This extra rules had been taken into account:
+   
+   * Allowed characters: alphanumeric and underscore
+   * Username must start and end with alphanumeric
+   * Each underscore must be between two alphanumeric characters. No more than one underscore in a row
+
+    The regular expression that fulfills all the above is the following:
+    
+    `^[a-zA-Z0-9]+([_]?[a-zA-Z0-9]+)*$`
+
+    Added the following option to the username at user Mongoose schema:
+   
+    ```js
+    match: [/^[a-zA-Z0-9]+([_]?[a-zA-Z0-9]+)*$/, 'Username must contain only alphanumeric characters or underscore, but no at the beggining or end']
+    ```
+    Added some extra parameters in order to trim extra spaces at the beginning or end and keep only lowercase characters in database. So the Mongoose schema is at this point:
 
     ```js
-    usersRouter.get('/', async (request, response) => {
-      const users = await User.find({})
-      response.json(users)
+    const userSchema = new mongoose.Schema({
+      username: {
+        type:String,
+        minlength: 
+        [
+          3,
+          'Username \'{VALUE}\' is too short. Username must have minimum lenght of 3 characters'
+        ],
+        required: true,
+        unique: true,
+        trim: true,
+        lowercase: true,
+        match: [
+          /^[a-zA-Z0-9]+([_]?[a-zA-Z0-9]+)*$/,
+          'Username must contain only alphanumeric characters or underscore, but no at the beggining or end'
+        ]
+      },
+      name: String,
+      passwordHash: String
+    })
+    ```
+
+    
+4. Password validation: Add the following to the route to add a new user in the controller at `controllers/users.js` file:
+
+    ```js
+    if (!body.password || body.password['length'] < 3) {
+      //!body.password --> If no password provided
+      response
+        .status(400)
+        .json({ error: 'Password must have minimum lenght of 3 characters' })
+    }
+    ```
+    That`s the usersRouter.post() function stays at the moment: 
+
+    ```js
+    usersRouter.post('/', async (request, response) => {
+      const body = request.body
+
+      if (!body.password || body.password['length'] < 3) {
+        response
+          .status(400)
+          .json({ error: 'Password must have minimum lenght of 3 characters' })
+      } else {
+
+        const saltRounds = 10
+        const passwordHash = await bcrypt.hash(body.password, saltRounds)
+
+        const user = new User({
+          username: body.username,
+          name: body.name,
+          passwordHash,
+        })
+
+        const savedUser = await user.save()
+        response.json(savedUser)
+      }
     })
     ```

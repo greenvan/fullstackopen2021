@@ -4,7 +4,20 @@ const uniqueValidator = require('mongoose-unique-validator')
 const userSchema = new mongoose.Schema({
   username: {
     type:String,
-    unique: true
+    minlength:
+    [
+      3,
+      'Username \'{VALUE}\' is too short. Username must have minimum lenght of 3 characters'
+    ],
+    required: true,
+    unique: true,
+    trim: true,
+    lowercase: true,
+    match: [
+      /^[a-zA-Z0-9]+([_]?[a-zA-Z0-9]+)*$/,
+      'Username must contain only alphanumeric characters or underscore, but no at the beggining or end'
+    ]
+
   },
   name: String,
   passwordHash: String
