@@ -1147,3 +1147,113 @@ Add a feature which adds the following restrictions to creating new users: Both 
       }
     })
     ```
+
+Write tests:
+
+```js
+
+  test('4.16a creation fails with no username provided', async () => {
+    const usersAtStart = await helper.usersInDb()
+
+    const newUser = {
+      name: 'Superuser',
+      password: 'mypass',
+    }
+
+    const result = await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+      .expect('Content-Type', /application\/json/)
+
+    expect(result.body.error).toContain('`username` is required')
+
+    const usersAtEnd = await helper.usersInDb()
+    expect(usersAtEnd).toHaveLength(usersAtStart.length)
+  })
+
+  test('4.16b creation fails with username of 2 characters', async () => {
+    const usersAtStart = await helper.usersInDb()
+
+    const newUser = {
+      username: 'hu',
+      name: 'Superuser',
+      password: 'mypass',
+    }
+
+    const result = await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+      .expect('Content-Type', /application\/json/)
+
+    expect(result.body.error).toContain('Username must have minimum lenght of 3 characters')
+
+    const usersAtEnd = await helper.usersInDb()
+    expect(usersAtEnd).toHaveLength(usersAtStart.length)
+  })
+
+
+})
+test('4.16d creation fails with password of 2 characters', async () => {
+  const usersAtStart = await helper.usersInDb()
+
+  const newUser = {
+    username: 'user2pass',
+    name: 'Superuser',
+    password: 'my',
+  }
+
+  const result = await api
+    .post('/api/users')
+    .send(newUser)
+    .expect(400)
+    .expect('Content-Type', /application\/json/)
+
+  expect(result.body.error).toContain('Password must have minimum lenght of 3 characters')
+
+  const usersAtEnd = await helper.usersInDb()
+  expect(usersAtEnd).toHaveLength(usersAtStart.length)
+})
+
+test('4.16e creation fails with no password', async () => {
+  const usersAtStart = await helper.usersInDb()
+
+  const newUser = {
+    username: 'usernopass',
+    name: 'Superuser'
+  }
+
+  const result = await api
+    .post('/api/users')
+    .send(newUser)
+    .expect(400)
+    .expect('Content-Type', /application\/json/)
+
+  expect(result.body.error).toContain('Password must have minimum lenght of 3 characters')
+
+  const usersAtEnd = await helper.usersInDb()
+  expect(usersAtEnd).toHaveLength(usersAtStart.length)
+})
+
+test('4.16f creation fails with forbidden characters of username', async () => {
+  const usersAtStart = await helper.usersInDb()
+
+  const newUser = {
+    username: 'username with spaces',
+    name: 'Superuser',
+    password: 'mypass',
+  }
+
+  const result = await api
+    .post('/api/users')
+    .send(newUser)
+    .expect(400)
+    .expect('Content-Type', /application\/json/)
+
+  expect(result.body.error).toContain('Username must contain only alphanumeric')
+
+  const usersAtEnd = await helper.usersInDb()
+  expect(usersAtEnd).toHaveLength(usersAtStart.length)
+})
+```
