@@ -1,6 +1,12 @@
 # Full Stack Open 2021
-Full Stack Course at th University of Helsinky (2021)
 
+<strong>Deep Dive Into Modern Web Development</strong>
+
+Full Stack Course at the University of Helsinky (2021)
+
+https://fullstackopen.com/en/
+
+___
 
 This is a compilation of the exercises completed for the course
 

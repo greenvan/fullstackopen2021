@@ -1495,7 +1495,7 @@ Take the token to a middleware.
       next()
     }
     ```
-2. register this middleware in the `app.js` file before all routes:
+2. Register this middleware in the `app.js` file before all routes:
     ```js
     app.use(middleware.tokenExtractor)
     ```
@@ -1556,6 +1556,43 @@ blogsRouter.delete('/:id', async(request, response) => {
 ```
 ##  Exercise 4.22*: Blog list expansions, step 10
 Do a middleware userExtractor, that finds out the user and sets it to the request object.
+1. Add middleware `userExtractor` in `utils/middleware.js` file:
+    ```js
+    const jwt = require('jsonwebtoken')
+    const User = require('../models/user')
+    //[...]
+    const userExtractor = async (request, response, next) => {
+      const authorization = request.get('authorization')
+      if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
+        const decodedToken = jwt.verify(authorization.substring(7), process.env.SECRET)
+        const user = await User.findById(decodedToken.id) //Search user
+        request.user=user
+      }else{request.user = null}
+
+      next()
+    }
+    ```
+2. Register this middleware in the `app.js` file before all routes:
+    ```js
+    app.use(middleware.userExtractor)
+    ```
+    or just in the specific route:
+    ```js
+    app.use('/api/blogs', middleware.userExtractor, blogsRouter)
+    ```
+    It would also be possible to register a middleware only for a specific operation:
+    ```js
+    const userExtractor = require('../utils/middleware').userExtractor
+    //[...]
+    router.post('/', userExtractor, async (request, response) => {
+      //[...]
+    }
+    ```
+3. Modify routes to add new blog. Just modify the line in which const user is defined:
+    ```js
+      const user = request.user
+     //const user = await User.findById(decodedToken.id) //Search user
+    ```
 
 ##  Exercise 4.23*: Blog list expansions, step 11
 Fix the tests.

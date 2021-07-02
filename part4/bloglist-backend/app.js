@@ -27,6 +27,7 @@ app.use(cors())
 app.use(express.json())
 
 app.use(middleware.tokenExtractor)
+//app.use(middleware.userExtractor) //--> We'll do that in the route
 
 app.use('/api/blogs', blogsRouter)
 app.use('/api/users', usersRouter)
