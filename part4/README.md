@@ -25,7 +25,8 @@ This is a compilation of the exercises of Part 4.
 - [Exercise 4.19: Blog list expansions, step 7](#exercise-419-blog-list-expansions-step-7) - Add new blog allowed only to creator.
 - [Exercise 4.20*: Blog list expansions, step 8](#exercise-420-blog-list-expansions-step-8) - tokenExtractor to middleware
 - [Exercise 4.21*: Blog list expansions, step 9](#exercise-421-blog-list-expansions-step-9) - Deletion allowed only to creator.
-
+- [Exercise 4.22*: Blog list expansions, step 10](#exercise-422-blog-list-expansions-step-10) - Middleware userExtractor
+- [Exercise 4.23*: Blog list expansions, step 11](#exercise-423-blog-list-expansions-step-11) - Fix the tests
 
 
 ## Exercise 4.1: Blog list, step1
@@ -1553,3 +1554,8 @@ blogsRouter.delete('/:id', async(request, response) => {
 
 })
 ```
+##  Exercise 4.22*: Blog list expansions, step 10
+Do a middleware userExtractor, that finds out the user and sets it to the request object.
+
+##  Exercise 4.23*: Blog list expansions, step 11
+Fix the tests.
