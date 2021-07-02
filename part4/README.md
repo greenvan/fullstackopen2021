@@ -21,6 +21,9 @@ This is a compilation of the exercises of Part 4.
 - [Exercise 4.15: Blog list expansions, step 3](#exercise-415-blog-list-expansions-step-3)
 - [Exercise 4.16*: Blog list expansions, step 4](#exercise-416-blog-list-expansions-step-4)
 - [Exercise 4.17: Blog list expansions, step 5](#exercise-417-blog-list-expansions-step-5)
+- [Exercise 4.18: Blog list expansions, step 6](#exercise-418-blog-list-expansions-step-6)
+- [Exercise 4.19: Blog list expansions, step 7](#exercise-419-blog-list-expansions-step-7)
+
 
 
 ## Exercise 4.1: Blog list, step1
@@ -1357,3 +1360,121 @@ Expand blogs so that each blog contains information on the creator of the blog. 
     })
     ```
 
+## Exercise 4.18: Blog list expansions, step 6
+Implement token-based authentication.
+1. Install the jsonwebtoken library, which allows us to generate JSON web tokens: 
+`npm install jsonwebtoken`
+2. Add `controllers/login.js` file, with the content provided in the lesson for notes app.
+    ```js
+    const jwt = require('jsonwebtoken')
+    const bcrypt = require('bcrypt')
+    const loginRouter = require('express').Router()
+    const User = require('../models/user')
+
+    loginRouter.post('/', async (request, response) => {
+      const body = request.body
+
+      const user = await User.findOne({ username: body.username })
+      const passwordCorrect = user === null
+        ? false
+        : await bcrypt.compare(body.password, user.passwordHash)
+
+      if (!(user && passwordCorrect)) {
+        return response.status(401).json({
+          error: 'invalid username or password'
+        })
+      }
+
+      const userForToken = {
+        username: user.username,
+        id: user._id,
+      }
+
+      const token = jwt.sign(userForToken, process.env.SECRET)
+
+      response
+        .status(200)
+        .send({ token, username: user.username, name: user.name })
+    })
+
+    module.exports = loginRouter
+    ```
+3. Add the environment variable SECRET to the `.env` file.
+4. Add the login Router to `app.js`:
+    ```js
+    const loginRouter = require('./controllers/login')
+    //[...]
+    app.use('/api/login', loginRouter)
+    ```
+5. Try logging using REST client in VSCode:
+    ```json
+    POST http://localhost:3003/api/login
+    Content-Type: application/json
+
+    {
+        "username": "greenvan",
+        "password": "mypassword"
+    }
+    ```
+## Exercise 4.19: Blog list expansions, step 7
+Modify adding new blogs so that it is only possible if a valid token is sent with the HTTP POST request. The user identified by the token is designated as the creator of the blog.
+
+1. Add token validation to new blog route at `controllers/blogs.js` file:
+    ```js
+    const jwt = require('jsonwebtoken')
+
+    // ...
+    const getTokenFrom = request => {
+      const authorization = request.get('authorization')
+      if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
+        return authorization.substring(7)
+      }
+      return null
+    }
+
+    blogsRouter.post('/', async (request, response) => {
+
+      const token = getTokenFrom(request)
+      const decodedToken = jwt.verify(token, process.env.SECRET)
+      if (!token || !decodedToken.id) {
+        return response.status(401).json({ error: 'token missing or invalid' })
+      }
+      const user = await User.findById(decodedToken.id) //Search user
+
+      const blog = new Blog({
+        title: request.body.title,
+        author:  request.body.author,
+        url: request.body.url,
+        likes:  request.body.likes,
+        user: user._id //Add user id
+      })
+
+      const savedBlog = await blog.save()
+
+      user.blogs = user.blogs.concat(savedBlog._id) //Add blog to user's blog list
+      await user.save()
+
+      response.status(201).json(savedBlog)
+    })
+    ```
+2. Use VSCode REST client to test:
+    2.1 Use login.rest to get a valid token
+    2.2 Use the returned token in a post request
+    ```json
+    POST http://localhost:3003/api/blogs/
+    Content-Type: application/json
+    Authorization: bearer eyJhbGciOiJIUzI1...bE2KRKA
+
+    {
+      "title": "My saved blog",
+      "author": "Green Van",
+      "url": "url del blog",
+      "likes": 7
+    }
+    ```
+3. Add error handling to our errorHandler middleware:
+    ```js
+     else if (error.name === 'JsonWebTokenError') {
+        return response.status(401).json({ error: 'invalid token' })
+     }
+    ```
