@@ -16,13 +16,15 @@ This is a compilation of the exercises of Part 4.
 - [Exercise 4.10: Blog list tests, step 3](#exercise-410-blog-list-tests-step-3)
 - [Exercise 4.11*: Blog list tests, step 4](#exercise-411-blog-list-tests-step-4)
 - [Exercise 4.12*: Blog list tests, step 5](#exercise-412-blog-list-tests-step-5)
-- [Exercise 4.13: Blog list expansions, step 1](#exercise-413-blog-list-expansions-step-1)
-- [Exercise 4.14: Blog list expansions, step 2](#exercise-414-blog-list-expansions-step-2)
-- [Exercise 4.15: Blog list expansions, step 3](#exercise-415-blog-list-expansions-step-3)
-- [Exercise 4.16*: Blog list expansions, step 4](#exercise-416-blog-list-expansions-step-4)
-- [Exercise 4.17: Blog list expansions, step 5](#exercise-417-blog-list-expansions-step-5)
-- [Exercise 4.18: Blog list expansions, step 6](#exercise-418-blog-list-expansions-step-6)
-- [Exercise 4.19: Blog list expansions, step 7](#exercise-419-blog-list-expansions-step-7)
+- [Exercise 4.13: Blog list expansions, step 1](#exercise-413-blog-list-expansions-step-1) - Add deleting functionality
+- [Exercise 4.14: Blog list expansions, step 2](#exercise-414-blog-list-expansions-step-2) - Add updating functionality
+- [Exercise 4.15: Blog list expansions, step 3](#exercise-415-blog-list-expansions-step-3) - Create new users
+- [Exercise 4.16*: Blog list expansions, step 4](#exercise-416-blog-list-expansions-step-4) - User creation restrictions
+- [Exercise 4.17: Blog list expansions, step 5](#exercise-417-blog-list-expansions-step-5) - Each blog contais info of the creator and viceversa
+- [Exercise 4.18: Blog list expansions, step 6](#exercise-418-blog-list-expansions-step-6) - Implement token-based authentication
+- [Exercise 4.19: Blog list expansions, step 7](#exercise-419-blog-list-expansions-step-7) - Add new blog allowed only to creator.
+- [Exercise 4.20*: Blog list expansions, step 8](#exercise-420-blog-list-expansions-step-8) - tokenExtractor to middleware
+- [Exercise 4.21*: Blog list expansions, step 9](#exercise-421-blog-list-expansions-step-9) - Deletion allowed only to creator.
 
 
 
@@ -1478,3 +1480,76 @@ Modify adding new blogs so that it is only possible if a valid token is sent wit
         return response.status(401).json({ error: 'invalid token' })
      }
     ```
+## Exercise 4.20*: Blog list expansions, step 8
+Take the token to a middleware.
+1. Add middleware `tokenExtractor` in `utils/middleware.js` file:
+    ```js
+    const tokenExtractor = (request, response, next) => {
+      // code that extracts the token
+      const authorization = request.get('authorization')
+      if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
+        request.token = authorization.substring(7)
+      }else{request.token = null}
+
+      next()
+    }
+    ```
+2. register this middleware in the `app.js` file before all routes:
+    ```js
+    app.use(middleware.tokenExtractor)
+    ```
+3. Modify route to add new blog:
+    ```js
+    blogsRouter.post('/', async (request, response) => {
+
+      const decodedToken = jwt.verify(request.token, process.env.SECRET)
+      if (!request.token || !decodedToken.id) {
+        return response.status(401).json({ error: 'token missing or invalid' })
+      }
+      const user = await User.findById(decodedToken.id) //Search user
+
+      const blog = new Blog({
+        title: request.body.title,
+        author:  request.body.author,
+        url: request.body.url,
+        likes:  request.body.likes,
+        user: user._id //Add user id
+      })
+
+      const savedBlog = await blog.save()
+
+      user.blogs = user.blogs.concat(savedBlog._id) //Add blog to user's blog list
+      await user.save()
+
+      response.status(201).json(savedBlog)
+    })
+    ```
+##  Exercise 4.21*: Blog list expansions, step 9
+Change the delete blog operation so that a blog can be deleted only by the user who added the blog
+
+In the `controllers/blogs.js` file:
+
+```js
+blogsRouter.delete('/:id', async(request, response) => {
+
+  //Find out if token is valid
+  const decodedToken = jwt.verify(request.token, process.env.SECRET)
+  if (!request.token || !decodedToken.id) {
+    return response.status(401).json({ error: 'token missing or invalid' })
+  }
+  //Search user of the blog
+  const blog = await Blog.findById(request.params.id)
+
+  if(!blog) {
+    response.status(204).end() // If it doesn't exist the result is the same (blog deleted)
+  } else if ( blog.user && blog.user.toString() === decodedToken.id.toString() ) {
+    //If user of the blog exists and is the same as the one in the token
+    await Blog.findByIdAndDelete(request.params.id)
+    response.status(204).end()
+  } else{
+    //Error: not authorized
+    response.status(403).json({ error: 'Not Authorized: only creator can delete the blog' })
+  }
+
+})
+```
