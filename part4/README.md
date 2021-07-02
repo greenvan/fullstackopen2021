@@ -3,6 +3,26 @@
 
 This is a compilation of the exercises of Part 4.
 
+
+- [Exercise 4.1: Blog list, step1](#exercise-41-blog-list-step1)
+- [Exercise 4.2: Blog list, step2](#exercise-42-blog-list-step2)
+- [Exercise 4.3: Helper functions and unit tests, step 1](#exercise-43-helper-functions-and-unit-tests-step-1)
+- [Exercise 4.4: Helper functions and unit tests, step 2](#exercise-44-helper-functions-and-unit-tests-step-2)
+- [Exercise 4.5*: Helper functions and unit tests, step 3](#exercise-45-helper-functions-and-unit-tests-step-3)
+- [Exercise 4.6*: Helper functions and unit tests, step 4](#exercise-46-helper-functions-and-unit-tests-step-4)
+- [Exercise 4.7*: Helper functions and unit tests, step 5](#exercise-47-helper-functions-and-unit-tests-step-5)
+- [Exercise 4.8: Blog list tests, step 1](#exercise-48-blog-list-tests-step-1)
+- [Exercise 4.9*: Blog list tests, step 2](#exercise-49-blog-list-tests-step-2)
+- [Exercise 4.10: Blog list tests, step 3](#exercise-410-blog-list-tests-step-3)
+- [Exercise 4.11*: Blog list tests, step 4](#exercise-411-blog-list-tests-step-4)
+- [Exercise 4.12*: Blog list tests, step 5](#exercise-412-blog-list-tests-step-5)
+- [Exercise 4.13: Blog list expansions, step 1](#exercise-413-blog-list-expansions-step-1)
+- [Exercise 4.14: Blog list expansions, step 2](#exercise-414-blog-list-expansions-step-2)
+- [Exercise 4.15: Blog list expansions, step 3](#exercise-415-blog-list-expansions-step-3)
+- [Exercise 4.16*: Blog list expansions, step 4](#exercise-416-blog-list-expansions-step-4)
+- [Exercise 4.17: Blog list expansions, step 5](#exercise-417-blog-list-expansions-step-5)
+
+
 ## Exercise 4.1: Blog list, step1
 1. Create backend with `npm init`
 2. Install express with `npm install express`
@@ -1257,3 +1277,83 @@ test('4.16f creation fails with forbidden characters of username', async () => {
   expect(usersAtEnd).toHaveLength(usersAtStart.length)
 })
 ```
+
+## Exercise 4.17: Blog list expansions, step 5
+Expand blogs so that each blog contains information on the creator of the blog. Modify listing all blogs so that the creator's user information is displayed with the blog, and listing all users also displays the blogs created by each user.
+
+1. Store the ids of the blogs added by the user in an array of Mongo ids at the user document in `models/user.js` file by adding this field:
+    ```js 
+      blogs: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'Blog'
+        }
+      ],
+    ```
+2. Expand the schema of the blog in order to contain information about the user who added it.
+    ```js
+    const blogSchema = new mongoose.Schema({
+      title:  { type: String, required: true, },
+      author: String,
+      url:  { type: String, required: true, },
+      likes:  { type: Number, default: 0 },
+      user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+      }
+    })
+    ```
+3. Update th code for creating a new Blog in `controllers/blogs.js`
+    ```js
+    const User = require('../models/user')
+    //[...]
+    blogsRouter.post('/', async (request, response) => {
+
+      const user = await User.findById(request.body.userId) //Search user
+
+      const blog = new Blog({
+        title: request.body.title,
+        author:  request.body.author,
+        url: request.body.url,
+        likes:  request.body.likes,
+        user: user._id //Add user id
+      })
+
+      const savedBlog = await blog.save()
+
+      user.blogs = user.blogs.concat(savedBlog._id) //Add blog to user's blog list
+      await user.save()
+
+      response.status(201).json(savedBlog)
+    })
+    ```
+4. Test by REST client in VSCode:
+    ```json
+    POST http://localhost:3003/api/blogs
+    Content-Type: application/json
+
+    {
+      "title": "My saved blog",
+      "author": "Green Van",
+      "url": "url del blog",
+      "likes": 7,
+      "userId": "60db14dca06c694a9871f806"
+    }
+    ```
+5. Populate
+    
+    5.1 Modify listing all blogs so that the creator's user information is displayed with the blog. In `controllers/blogs.js` file:
+    ```js
+    blogsRouter.get('/', async (request, response) => {
+      const blogs = await Blog.find({}).populate('user', { username: 1, name: 1 })
+      response.json(blogs)
+    })
+    ```
+    5.2 Modify listing all users so that it displays the blogs created by each user. In `controllers/users.js` file:
+    ```js
+    usersRouter.get('/', async (request, response) => {
+      const users = await User.find({}).populate('blogs', { url: 1, title: 1, author:1 })
+      response.json(users)
+    })
+    ```
+
