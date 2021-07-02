@@ -8,9 +8,10 @@ const app = require('../app')
 const api = supertest(app)
 
 const Blog = require('../models/blog')
+const User = require ('../models/user')
 
 const bcrypt = require('bcrypt')
-const User = require('../models/user')
+const jwt = require('jsonwebtoken')
 
 beforeEach(async () => {
   await Blog.deleteMany({})
@@ -38,15 +39,34 @@ describe('With initial values', () => {
 
 describe('Addition of a new blog', () => {
 
+  let token = ''
+
+  beforeAll(async () => {
+    await User.deleteMany({})
+    //Create new user to add blogs
+    const passwordHash = await bcrypt.hash('sekret', 10)
+    const user = new User({ username: 'root', passwordHash })
+    await user.save()
+
+    const userForToken = {
+      username: user.username,
+      id: user._id,
+    }
+
+    token = jwt.sign(userForToken, process.env.SECRET)
+  })
+
   test('Ex 4.10: A new blog can be added and is saved correctly to the database', async () => {
     const newBlog =  {
       title: 'My new title',
       author: 'New blog\'s author',
       url: 'https://newblogfakeurl.com/'
     }
+
     //Add new
     await api
       .post('/api/blogs')
+      .set('Authorization', `Bearer ${token}`)
       .send(newBlog)
       .expect(201) //Created
       .expect('Content-Type', /application\/json/)
@@ -71,6 +91,7 @@ describe('Addition of a new blog', () => {
     //Add new
     const response = await api
       .post('/api/blogs')
+      .set('Authorization', `Bearer ${token}`)
       .send(newBlog)
       .expect(201) //Created
       .expect('Content-Type', /application\/json/)
@@ -91,24 +112,80 @@ describe('Addition of a new blog', () => {
     //Add new with no title
     await api
       .post('/api/blogs')
+      .set('Authorization', `Bearer ${token}`)
       .send(newBlogNoTitle)
       .expect(400) //Bad Request
     //Add new with no url
     await api
       .post('/api/blogs')
+      .set('Authorization', `Bearer ${token}`)
       .send(newBlogNoUrl)
       .expect(400) //Bad Request
+
+  })
+
+  test('Ex 4.23a: A new blog cannot be added if no proper token provided', async () => {
+    const newBlog =  {
+      title: 'My new title',
+      author: 'New blog\'s author',
+      url: 'https://newblogfakeurl.com/'
+    }
+
+    //Add new
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(401) //Unauthorized
 
   })
 })
 
 describe('Deletion of a blog',() => {
 
-  test('Ex 4.13a: Deletion of an existing blog, succeeds with status code 204',async() => {
+  let token = ''
+  let token2 = ''
+  let blogToDelete = ''
+
+  beforeEach(async () => {
+    await User.deleteMany({})
+    //Create new user to add blogs and then delete
+    const passwordHash = await bcrypt.hash('sekret', 10)
+    const user = new User({ username: 'root', passwordHash })
+    await user.save()
+    const user2 = new User({ username: 'second', passwordHash })
+    await user2.save()
+
+    const userForToken = {
+      username: user.username,
+      id: user._id,
+    }
+    const user2ForToken = {
+      username: user2.username,
+      id: user2._id,
+    }
+
+    token = jwt.sign(userForToken, process.env.SECRET)
+    token2 = jwt.sign(user2ForToken, process.env.SECRET)
+
+    //Create new blog by user root:
+    blogToDelete = new Blog({
+      title:  'My title to delete',
+      author: 'my author',
+      url: 'my url',
+      user: user._id
+    })
+    await blogToDelete.save()
+
+
+
+  })
+
+  test('Ex 4.13a: Deletion of an existing blog, succeeds with status code 204', async() => {
+
     const blogsAtStart = await helper.blogsInDb()
-    const blogToDelete = blogsAtStart[0]
     await api
       .delete(`/api/blogs/${blogToDelete.id}`)
+      .set('Authorization', `Bearer ${token}`)
       .expect(204)
 
     const blogsAtEnd = await helper.blogsInDb()
@@ -120,7 +197,32 @@ describe('Deletion of a blog',() => {
     const deletedId = await helper.nonExistingId()
     await api
       .delete(`/api/blogs/${deletedId}`)
+      .set('Authorization', `Bearer ${token2}`)
       .expect(204)
+
+    const blogsAtEnd = await helper.blogsInDb()
+    expect(blogsAtEnd).toHaveLength(blogsAtStart.length)
+  })
+
+  test('Ex 4.23b: Deletion of an existing blog with no proper token returns 401 unauthorized', async() => {
+
+    const blogsAtStart = await helper.blogsInDb()
+    await api
+      .delete(`/api/blogs/${blogToDelete.id}`)
+      .set('Authorization', 'Bearer 0d0_faketoken_0d0')
+      .expect(401)
+
+    const blogsAtEnd = await helper.blogsInDb()
+    expect(blogsAtEnd).toHaveLength(blogsAtStart.length)
+  })
+
+  test('Ex 4.23c: Deletion of an existing blog with proper token but from other user returns 403 Forbidden', async() => {
+
+    const blogsAtStart = await helper.blogsInDb()
+    await api
+      .delete(`/api/blogs/${blogToDelete.id}`)
+      .set('Authorization', `Bearer ${token2}`)
+      .expect(403)
 
     const blogsAtEnd = await helper.blogsInDb()
     expect(blogsAtEnd).toHaveLength(blogsAtStart.length)
@@ -178,164 +280,6 @@ describe('Updating a blog',() => {
 
   })
 
-})
-
-
-describe('User creation When there is initially one user in db', () => {
-  beforeEach(async () => {
-    await User.deleteMany({})
-
-    const passwordHash = await bcrypt.hash('sekret', 10)
-    const user = new User({ username: 'root', passwordHash })
-
-    await user.save()
-  })
-
-  test('4.15 creation succeeds with a fresh username', async () => {
-    const usersAtStart = await helper.usersInDb()
-
-    const newUser = {
-      username: 'greenvan',
-      name: 'ROCIO CARRILLO',
-      password: 'mypass',
-    }
-
-    await api
-      .post('/api/users')
-      .send(newUser)
-      .expect(200)
-      .expect('Content-Type', /application\/json/)
-
-    const usersAtEnd = await helper.usersInDb()
-    expect(usersAtEnd).toHaveLength(usersAtStart.length + 1)
-
-    const usernames = usersAtEnd.map(u => u.username)
-    expect(usernames).toContain(newUser.username)
-  })
-
-  test('4.16a creation fails with no username provided', async () => {
-    const usersAtStart = await helper.usersInDb()
-
-    const newUser = {
-      name: 'Superuser',
-      password: 'mypass',
-    }
-
-    const result = await api
-      .post('/api/users')
-      .send(newUser)
-      .expect(400)
-      .expect('Content-Type', /application\/json/)
-
-    expect(result.body.error).toContain('`username` is required')
-
-    const usersAtEnd = await helper.usersInDb()
-    expect(usersAtEnd).toHaveLength(usersAtStart.length)
-  })
-
-  test('4.16b creation fails with username of 2 characters', async () => {
-    const usersAtStart = await helper.usersInDb()
-
-    const newUser = {
-      username: 'hu',
-      name: 'Superuser',
-      password: 'mypass',
-    }
-
-    const result = await api
-      .post('/api/users')
-      .send(newUser)
-      .expect(400)
-      .expect('Content-Type', /application\/json/)
-
-    expect(result.body.error).toContain('Username must have minimum lenght of 3 characters')
-
-    const usersAtEnd = await helper.usersInDb()
-    expect(usersAtEnd).toHaveLength(usersAtStart.length)
-  })
-
-  test('4.16c creation fails with proper statuscode and message if username already taken', async () => {
-    const usersAtStart = await helper.usersInDb()
-
-    const newUser = {
-      username: 'root',
-      name: 'Superuser',
-      password: 'mypass',
-    }
-
-    const result = await api
-      .post('/api/users')
-      .send(newUser)
-      .expect(400)
-      .expect('Content-Type', /application\/json/)
-
-    expect(result.body.error).toContain('`username` to be unique')
-
-    const usersAtEnd = await helper.usersInDb()
-    expect(usersAtEnd).toHaveLength(usersAtStart.length)
-  })
-
-})
-test('4.16d creation fails with password of 2 characters', async () => {
-  const usersAtStart = await helper.usersInDb()
-
-  const newUser = {
-    username: 'user2pass',
-    name: 'Superuser',
-    password: 'my',
-  }
-
-  const result = await api
-    .post('/api/users')
-    .send(newUser)
-    .expect(400)
-    .expect('Content-Type', /application\/json/)
-
-  expect(result.body.error).toContain('Password must have minimum lenght of 3 characters')
-
-  const usersAtEnd = await helper.usersInDb()
-  expect(usersAtEnd).toHaveLength(usersAtStart.length)
-})
-
-test('4.16e creation fails with no password', async () => {
-  const usersAtStart = await helper.usersInDb()
-
-  const newUser = {
-    username: 'usernopass',
-    name: 'Superuser'
-  }
-
-  const result = await api
-    .post('/api/users')
-    .send(newUser)
-    .expect(400)
-    .expect('Content-Type', /application\/json/)
-
-  expect(result.body.error).toContain('Password must have minimum lenght of 3 characters')
-
-  const usersAtEnd = await helper.usersInDb()
-  expect(usersAtEnd).toHaveLength(usersAtStart.length)
-})
-
-test('4.16f creation fails with forbidden characters of username', async () => {
-  const usersAtStart = await helper.usersInDb()
-
-  const newUser = {
-    username: 'username with spaces',
-    name: 'Superuser',
-    password: 'mypass',
-  }
-
-  const result = await api
-    .post('/api/users')
-    .send(newUser)
-    .expect(400)
-    .expect('Content-Type', /application\/json/)
-
-  expect(result.body.error).toContain('Username must contain only alphanumeric')
-
-  const usersAtEnd = await helper.usersInDb()
-  expect(usersAtEnd).toHaveLength(usersAtStart.length)
 })
 
 

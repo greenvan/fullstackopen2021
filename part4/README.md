@@ -1595,4 +1595,144 @@ Do a middleware userExtractor, that finds out the user and sets it to the reques
     ```
 
 ##  Exercise 4.23*: Blog list expansions, step 11
-Fix the tests.
+Fix the tests for adding a new blog. Also write a new test to ensure adding a blog fails with the proper status code 401 Unauthorized if a token is not provided.
+
+1. Fix tests for adding a new blog
+
+    1.1 Create new user to add blogs before tests
+    ```js
+    beforeAll(async () => {
+      await User.deleteMany({})
+      const passwordHash = await bcrypt.hash('sekret', 10)
+      const user = new User({ username: 'root', passwordHash })
+
+      await user.save()
+    })
+    ```
+    1.2 Add a function before tests to get a valid token
+    ```js
+      let token = ''
+
+      beforeAll(async () => {
+        await User.deleteMany({})
+        //Create new user to add blogs
+        const passwordHash = await bcrypt.hash('sekret', 10)
+        const user = new User({ username: 'root', passwordHash })
+        await user.save()
+
+        const userForToken = {
+          username: user.username,
+          id: user._id,
+        }
+    
+        token = jwt.sign(userForToken, process.env.SECRET)
+      })
+    ```
+    1.2 En each post test, add the following after the `.post` call: 
+    
+    `.set('Authorization', `Bearer ${token}`)`
+    ```js      
+      await api
+      .post('/api/blogs')
+      .set('Authorization', `Bearer ${token}`)
+      .send(newBlog)
+      .expect(201) //Created
+      .expect('Content-Type', /application\/json/)
+    ```
+
+
+2. Add new test to ensure adding a blog fails with the proper status code 401 Unauthorized if a token is not provided:
+
+    ```js
+    test('Ex 4.23a: A new blog cannot be added if no proper token provided', async () => {
+      const newBlog =  {
+        title: 'My new title',
+        author: 'New blog\'s author',
+        url: 'https://newblogfakeurl.com/'
+      }
+
+      await api
+        .post('/api/blogs')
+        .send(newBlog)
+        .expect(401) //Unauthorized
+
+    })
+    ```
+3. Fix also tests for deletion:
+  
+   3.1 Add this part at the beginning of deletion section
+    ```js
+      let token = ''
+      let token2 = ''
+      let blogToDelete = ''
+
+      beforeEach(async () => {
+        await User.deleteMany({})
+        //Create new user to add blogs and then delete
+        const passwordHash = await bcrypt.hash('sekret', 10)
+        const user = new User({ username: 'root', passwordHash })
+        await user.save()
+        const user2 = new User({ username: 'second', passwordHash })
+        await user2.save()
+
+        const userForToken = {
+          username: user.username,
+          id: user._id,
+        }
+        const user2ForToken = {
+          username: user2.username,
+          id: user2._id,
+        }
+
+        token = jwt.sign(userForToken, process.env.SECRET)
+        token2 = jwt.sign(user2ForToken, process.env.SECRET)
+
+        //Create new blog by user root:
+        blogToDelete = new Blog({
+          title:  'My title to delete',
+          author: 'my author',
+          url: 'my url',
+          user: user._id
+        })
+        await blogToDelete.save()
+
+      })
+    ```
+    3.2 Fix tests the same way as in post requests:
+    ```js 
+    await api
+      .delete(`/api/blogs/${blogToDelete.id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(204)
+    ```
+  
+
+4. Create new tests for deletion:
+
+    ```js
+      test('Ex 4.23b: Deletion of an existing blog with no token provided of it is fake returns 401 unauthorized', async() => {
+
+        const blogsAtStart = await helper.blogsInDb()
+        await api
+          .delete(`/api/blogs/${blogToDelete.id}`)
+          .set('Authorization', 'Bearer 0d0_faketoken_0d0')
+          .expect(401)
+
+        const blogsAtEnd = await helper.blogsInDb()
+        expect(blogsAtEnd).toHaveLength(blogsAtStart.length)
+      })
+
+      test('Ex 4.23c: Deletion of an existing blog with proper token but from other user returns 403 Forbidden', async() => {
+
+        const blogsAtStart = await helper.blogsInDb()
+        await api
+          .delete(`/api/blogs/${blogToDelete.id}`)
+          .set('Authorization', `Bearer ${token2}`)
+          .expect(403)
+
+        const blogsAtEnd = await helper.blogsInDb()
+        expect(blogsAtEnd).toHaveLength(blogsAtStart.length)
+      })
+    ```
+
+**NOTE: Updates are allowed at this point by any user. Should be fixed in the future.**
