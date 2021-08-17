@@ -17,7 +17,7 @@ This is a compilation of the exercises completed for the course
 - [Part 2: Communicating with server](part2/README.md)
 - [Part 3: Programming a server with NodeJS and Express](part3/README.md)
 - [Part 4: Testing Express servers, user administration](part4/README.md)
-- Part 5: Testing React apps
+- [Part 5: Testing React apps](part5/README.md)
 - Part 6: State management with Redux
 - Part 7: React router, custom hooks, styling app with CSS and webpack
 - Part 8: GraphQL
