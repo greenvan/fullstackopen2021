@@ -117,3 +117,40 @@ const App = () => {
   )
 }
 ```
+
+## Exercise 5.2: Blog list frontend , step2
+Make the login 'permanent' by using the local storage and implement a way to log out.
+
+In the `handlelogin` function we store in the value `loggedBlogappUser` in local storage :
+```js
+      window.localStorage.setItem(
+        'loggedBlogappUser', JSON.stringify(user)
+      )
+```
+
+The application checks if user details of a logged-in user can already be found on the local storage using an effect hook:
+```js
+  useEffect(() => {
+    const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser')
+    if (loggedUserJSON) {
+      const user = JSON.parse(loggedUserJSON)
+      setUser(user)
+    }
+  }, [])
+```
+
+Created the `handlelogout` function:
+```js
+  const handleLogout =  (event) => {
+    event.preventDefault()
+
+    window.localStorage.removeItem('loggedBlogappUser')
+    setUser(null)
+  }
+```
+
+Added this line before bloglist to show user and the logout button:
+```html
+ <div>User {user.name} logged in. <button onClick={handleLogout}>Log out</button></div>
+
+```
