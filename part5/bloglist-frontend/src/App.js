@@ -9,9 +9,13 @@ import Header from './components/Header'
 
 import Notification from './components/Notification'
 import LoginForm from './components/LoginForm'
+import NewBlogForm from './components/NewBlogForm'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
+  const [newBlogTitle, setNewBlogTitle] = useState('')
+  const [newBlogAuthor, setNewBlogAuthor] = useState('')
+  const [newBlogUrl, setNewBlogUrl] = useState('')
 
   const [errorMessage, setErrorMessage] = useState(null)
 
@@ -42,6 +46,7 @@ const App = () => {
       window.localStorage.setItem(
         'loggedBlogappUser', JSON.stringify(user)
       )
+      blogService.setToken(user.token)
       setUser(user)
       setUsername('')
       setPassword('')
@@ -59,6 +64,34 @@ const App = () => {
     setUser(null)
   }
 
+  const addBlog = (event) => {
+    event.preventDefault()
+    const blogObject = {
+      title: newBlogTitle,
+      author: newBlogAuthor,
+      url: newBlogUrl
+    }
+
+    blogService
+      .create(blogObject)
+      .then(returnedBlog => {
+        setBlogs(blogs.concat(returnedBlog))
+        setNewBlogTitle('')
+        setNewBlogAuthor('')
+        setNewBlogUrl('')
+      })
+  }
+
+  const handleTitleChange = (event) => {
+    setNewBlogTitle(event.target.value)
+  }
+  const handleAuthorChange = (event) => {
+    setNewBlogAuthor(event.target.value)
+  }
+  const handleUrlChange = (event) => {
+    setNewBlogUrl(event.target.value)
+  }
+
   if (user === null) {
     return (
       <div>
@@ -68,8 +101,8 @@ const App = () => {
           handleLogin={handleLogin}
           username={username}
           password={password}
-          onChangeUsernameHandler={({ target }) => setUsername(target.value)}
-          onChangePasswordHandler={({ target }) => setPassword(target.value)}/>
+          handleUserChange={({ target }) => setUsername(target.value)}
+          handlePasswordChange={({ target }) => setPassword(target.value)}/>
       </div>
     )
   }
@@ -78,6 +111,15 @@ const App = () => {
     <div>
       <Header />
       <div>User {user.name} logged in. <button onClick={handleLogout}>Log out</button></div>
+      <NewBlogForm
+        onSubmitHandler={addBlog}
+        title={newBlogTitle}
+        handleTitleChange={handleTitleChange}
+        author={newBlogAuthor}
+        handleAuthorChange={handleAuthorChange}
+        url={newBlogUrl}
+        handleUrlChange={handleUrlChange}
+      />
       <BlogList blogs={blogs}/>
       <Footer/>
     </div>

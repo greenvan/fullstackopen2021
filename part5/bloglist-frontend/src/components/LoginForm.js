@@ -1,27 +1,33 @@
 /* eslint-disable react/prop-types */
 import React from 'react'
 
-const LoginForm = ({ handleLogin, username, password, onChangeUsernameHandler, onChangePasswordHandler }) => (
+const LoginForm = ({ handleLogin, username, password, handleUserChange, handlePasswordChange }) => (
   <div>
     <h2>Log in to application</h2>
-    <form onSubmit={handleLogin}>
-      <div>
-          Username <input
-          type="text"
-          value={username}
-          name="Username"
-          onChange={onChangeUsernameHandler}
-        />
-      </div>
-      <div>
-          Password <input
-          type="password"
-          value={password}
-          name="Password"
-          onChange={onChangePasswordHandler}
-        />
-      </div>
-      <button type="submit">login</button>
+    <form className='login' onSubmit={handleLogin}>
+      <ul>
+        <li>
+          <label htmlFor="username">Username: </label>
+          <input className='login'
+            type="text"
+            value={username}
+            name="Username"
+            onChange={handleUserChange}
+          />
+        </li>
+        <li>
+          <label htmlFor="password">Password: </label>
+          <input className='login'
+            type="password"
+            value={password}
+            name="Password"
+            onChange={handlePasswordChange}
+          />
+        </li>
+        <li className="button">
+          <button type="submit">login</button>
+        </li>
+      </ul>
     </form>
   </div>
 )

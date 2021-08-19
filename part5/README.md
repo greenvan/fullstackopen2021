@@ -187,3 +187,125 @@ if (user === null) {
   )
 }
 ```
+
+## Exercise 5.3 Bloglist frontend, step3
+Expand your application to allow a logged-in user to add new blogs
+
+1. Add `setToken` and `create` to `services\blogs.js`:
+
+  ```js
+  let token = null
+
+  const setToken = newToken => {
+    token = `bearer ${newToken}`
+  }
+
+  const create = async newObject => {
+    const config = {
+      headers: { Authorization: token }
+    }
+
+    const response = await axios.post(baseUrl, newObject, config)
+    return response.data
+  }
+  ```
+
+2. Set token at `handleLogin()` in `App.js`:
+
+  ```js
+  blogService.setToken(user.token)
+  ```
+3. Create `components/NewBlogForm.js` with the new component.
+  ```js
+  import React from 'react'
+  
+  const NewBlogForm = ({ onSubmitHandler, title, handleTitleChange, author, handleAuthorChange, url, handleUrlChange }) => (
+    <div><h2>Create new</h2>
+      <form onSubmit={onSubmitHandler}>
+        <ul>
+          <li>
+            <label htmlFor="title">Title:</label>
+
+            <input
+              value={title}
+              onChange={handleTitleChange}
+            />
+          </li>
+          <li>
+            <label htmlFor="author">Author:</label>
+            <input
+              value={author}
+              onChange={handleAuthorChange}
+            />
+          </li>
+          <li>
+            <label htmlFor="url">url:</label>
+            <input
+              value={url}
+              onChange={handleUrlChange}
+            />
+          </li>
+          <li className="button">
+            <button type="submit">Create</button>
+          </li>
+        </ul>
+      </form>
+    </div>
+  )
+
+  export default NewBlogForm
+  ```
+
+4. Add Field component to `App.js` under the return statement.
+  ```html
+        <NewBlogForm
+        onSubmitHandler={addBlog}
+        title={newBlogTitle}
+        handleTitleChange={handleTitleChange}
+        author={newBlogAuthor}
+        handleAuthorChange={handleAuthorChange}
+        url={newBlogUrl}
+        handleUrlChange={handleUrlChange}
+      />
+  ```
+5. Added state for input fields and handlers in `App.js`:
+  ```js
+  [...]
+  const [newBlogTitle, setNewBlogTitle] = useState('')
+  const [newBlogAuthor, setNewBlogAuthor] = useState('')
+  const [newBlogUrl, setNewBlogUrl] = useState('')
+  [...]
+  
+  const addBlog = (event) => {
+    event.preventDefault()
+    const blogObject = {
+      title: newBlogTitle,
+      author: newBlogAuthor,
+      url: newBlogUrl
+    }
+
+    blogService
+      .create(blogObject)
+      .then(returnedBlog => {
+        setBlogs(blogs.concat(returnedBlog))
+        setNewBlogTitle('')
+        setNewBlogAuthor('')
+        setNewBlogUrl('')
+      })
+  }
+
+  const handleTitleChange = (event) => {
+    setNewBlogTitle(event.target.value)
+  }
+  const handleAuthorChange = (event) => {
+    setNewBlogAuthor(event.target.value)
+  }
+  const handleUrlChange = (event) => {
+    setNewBlogUrl(event.target.value)
+  }
+  ```
+
+6. Added some css styles in `index.css` in order to make the forms more attractive.
+
+
+At this point the app does add a new Blog if no validation error occurs. User is not informed about successful and unsuccessful operations.
