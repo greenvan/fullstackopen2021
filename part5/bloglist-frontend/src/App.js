@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import Blog from './components/Blog'
+import BlogList from './components/BlogList'
 import blogService from './services/blogs'
 
 import loginService from './services/login'
@@ -8,6 +8,7 @@ import Footer from './components/Footer'
 import Header from './components/Header'
 
 import Notification from './components/Notification'
+import LoginForm from './components/LoginForm'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
@@ -54,7 +55,6 @@ const App = () => {
 
   const handleLogout = (event) => {
     event.preventDefault()
-
     window.localStorage.removeItem('loggedBlogappUser')
     setUser(null)
   }
@@ -64,26 +64,12 @@ const App = () => {
       <div>
         <Header />
         <Notification message={errorMessage} />
-        <h2>Log in to application</h2>
-        <form onSubmit={handleLogin}>
-          <div>
-          Username <input
-              type="text"
-              value={username}
-              name="Username"
-              onChange={({ target }) => setUsername(target.value)}
-            />
-          </div>
-          <div>
-          Password <input
-              type="password"
-              value={password}
-              name="Password"
-              onChange={({ target }) => setPassword(target.value)}
-            />
-          </div>
-          <button type="submit">login</button>
-        </form>
+        <LoginForm
+          handleLogin={handleLogin}
+          username={username}
+          password={password}
+          onChangeUsernameHandler={({ target }) => setUsername(target.value)}
+          onChangePasswordHandler={({ target }) => setPassword(target.value)}/>
       </div>
     )
   }
@@ -92,11 +78,7 @@ const App = () => {
     <div>
       <Header />
       <div>User {user.name} logged in. <button onClick={handleLogout}>Log out</button></div>
-
-      <h2>Blog list</h2>
-      {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} />
-      )}
+      <BlogList blogs={blogs}/>
       <Footer/>
     </div>
   )

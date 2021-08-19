@@ -154,3 +154,36 @@ Added this line before bloglist to show user and the logout button:
  <div>User {user.name} logged in. <button onClick={handleLogout}>Log out</button></div>
 
 ```
+
+At this point, some refactoring has been done: 
+1. Created BlogList Component
+2. Created LoginForm Component
+
+The `return` statement in `App.js` :
+
+```js
+if (user === null) {
+    return (
+      <div>
+        <Header />
+        <Notification message={errorMessage} />
+        <LoginForm
+          handleLogin={handleLogin}
+          username={username}
+          password={password}
+          onChangeUsernameHandler={({ target }) => setUsername(target.value)}
+          onChangePasswordHandler={({ target }) => setPassword(target.value)}/>
+      </div>
+    )
+  }
+
+  return (
+    <div>
+      <Header />
+      <div>User {user.name} logged in. <button onClick={handleLogout}>Log out</button></div>
+      <BlogList blogs={blogs}/>
+      <Footer/>
+    </div>
+  )
+}
+```
