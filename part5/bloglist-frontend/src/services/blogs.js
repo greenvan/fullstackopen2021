@@ -6,5 +6,5 @@ const getAll = () => {
   return request.then(response => response.data)
 }
 
-const blogService =  { getAll }
+const blogService = { getAll }
 export default blogService
