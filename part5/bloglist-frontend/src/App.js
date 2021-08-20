@@ -17,7 +17,7 @@ const App = () => {
   const [newBlogAuthor, setNewBlogAuthor] = useState('')
   const [newBlogUrl, setNewBlogUrl] = useState('')
 
-  const [errorMessage, setErrorMessage] = useState(null)
+  const [notification, setNotification] = useState(null)
 
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
@@ -37,6 +37,13 @@ const App = () => {
     }
   }, [])
 
+  const notifyWith = (message, type = 'notification') => {
+    setNotification({ message, type })
+    setTimeout(() => {
+      setNotification(null)
+    }, 5000)
+  }
+
   const handleLogin = async (event) => {
     event.preventDefault()
     try {
@@ -50,11 +57,8 @@ const App = () => {
       setUser(user)
       setUsername('')
       setPassword('')
-    } catch (exception) {
-      setErrorMessage('Wrong credentials')
-      setTimeout(() => {
-        setErrorMessage(null)
-      }, 5000)
+    } catch (error) {
+      notifyWith(`Error: ${error.response.data.error}`, 'error')
     }
   }
 
@@ -64,22 +68,23 @@ const App = () => {
     setUser(null)
   }
 
-  const addBlog = (event) => {
+  const addBlog = async (event) => {
     event.preventDefault()
     const blogObject = {
       title: newBlogTitle,
       author: newBlogAuthor,
       url: newBlogUrl
     }
-
-    blogService
-      .create(blogObject)
-      .then(returnedBlog => {
-        setBlogs(blogs.concat(returnedBlog))
-        setNewBlogTitle('')
-        setNewBlogAuthor('')
-        setNewBlogUrl('')
-      })
+    try {
+      const returnedBlog = await blogService.create(blogObject)
+      setBlogs(blogs.concat(returnedBlog))
+      setNewBlogTitle('')
+      setNewBlogAuthor('')
+      setNewBlogUrl('')
+      notifyWith(`Added new blog: "${returnedBlog.title}" (by ${returnedBlog.author})`, 'notification')
+    } catch (error) {
+      notifyWith(`Unable to create new Blog. Error: ${error.response.data.error}`, 'error')
+    }
   }
 
   const handleTitleChange = (event) => {
@@ -96,7 +101,7 @@ const App = () => {
     return (
       <div>
         <Header />
-        <Notification message={errorMessage} />
+        <Notification notification={notification}/>
         <LoginForm
           handleLogin={handleLogin}
           username={username}
@@ -111,6 +116,7 @@ const App = () => {
     <div>
       <Header />
       <div>User {user.name} logged in. <button onClick={handleLogout}>Log out</button></div>
+      <Notification notification={notification}/>
       <NewBlogForm
         onSubmitHandler={addBlog}
         title={newBlogTitle}

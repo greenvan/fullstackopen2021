@@ -6,6 +6,18 @@ h2 {
   .error {
     color: red;
     background: lightgrey;
+    width: 500px;
+    font-size: 20px;
+    border-style: solid;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+    
+  .notification {
+    color: green;
+    background: lightgrey;
+    width: 500px;
     font-size: 20px;
     border-style: solid;
     border-radius: 5px;

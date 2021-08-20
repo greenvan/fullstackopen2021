@@ -1,14 +1,14 @@
 /* eslint-disable react/prop-types */
 import React from 'react'
 
-const Notification = ({ message }) => {
-  if (message === null) {
+const Notification = ({ notification }) => {
+  if (notification === null) {
     return null
   }
 
   return (
-    <div className="error">
-      {message}
+    <div className={notification.type}>
+      {notification.message}
     </div>
   )
 }

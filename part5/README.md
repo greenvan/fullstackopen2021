@@ -309,3 +309,82 @@ Expand your application to allow a logged-in user to add new blogs
 
 
 At this point the app does add a new Blog if no validation error occurs. User is not informed about successful and unsuccessful operations.
+
+## 5.4 bloglist frontend, step4
+Implement notifications which inform the user about successful and unsuccessful operations at the top of the page. 
+
+1. In `App.js`, instead of "errorMessage" we will use "notification" for a more general purpose. It will contain the message and the type of notification (error or notification)
+  ```js
+  const [notification, setNotification] = useState(null)
+  ```
+2. Created notifyWith method in `App.js`
+  ```js
+  const notifyWith = (message, type = 'notification') => {
+    setNotification({ message, type })
+    setTimeout(() => {
+      setNotification(null)
+    }, 5000)
+  }
+  ```
+3. In `handleLogin` and `addBlog` methods we add a try catch block to capture error and display it:
+  ```js
+  catch (error) {
+    notifyWith(`Error: ${error.response.data.error}`, 'error')
+  }
+  ```
+4. In `addBlog` we add also a notification after the blog is created. Await syntax has replace the .then() syntax used before.
+  ```js
+      try {
+      const returnedBlog = await blogService.create(blogObject)
+      setBlogs(blogs.concat(returnedBlog))
+      setNewBlogTitle('')
+      setNewBlogAuthor('')
+      setNewBlogUrl('')
+      notifyWith(`Added new blog: "${returnedBlog.title}" (by ${returnedBlog.author})`, 'notification')
+    } catch (error) {
+      notifyWith(`Unable to create new Blog. Error: ${error.response.data.error}`, 'error')
+    }
+  ```
+5. Also in `App.js`: `Notification` component has been added after the `Header` under the return clause in both cases: when user is logged in and when is not.
+  ```xml
+    <Notification notification={notification}/>
+  ```
+6. `components/Notification.js` has been changed in order to support error and notification cases:
+  ```js
+  const Notification = ({ notification }) => {
+    if (notification === null) {
+      return null
+    }
+
+    return (
+      <div className={notification.type}>
+        {notification.message}
+      </div>
+    )
+  }
+  export default Notification
+  ```
+7. CSS styles have been added to `index.css`:
+  ```css
+    .error {
+    color: red;
+    background: lightgrey;
+    width: 500px;
+    font-size: 20px;
+    border-style: solid;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+    
+  .notification {
+    color: green;
+    background: lightgrey;
+    width: 500px;
+    font-size: 20px;
+    border-style: solid;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+  ```
