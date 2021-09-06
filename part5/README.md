@@ -388,3 +388,134 @@ Implement notifications which inform the user about successful and unsuccessful 
     margin-bottom: 10px;
   }
   ```
+
+  
+## Exercise 5.5 Bloglist frontend, step5
+Change the form for creating blog posts so that it is only displayed when appropriate. 
+- By default the form is not visible.
+- The form closes when a new blog is created.
+
+
+1. Create `Toggable.js` as shown in the [course material](https://fullstackopen.com/en/part5/props_children_and_proptypes#displaying-the-login-form-only-when-appropriate).
+2. Wrap the new blog form component inside the Togglable component.
+  ```xml 
+      <Togglable buttonLabel="Create new blog">
+        <NewBlogForm
+          onSubmitHandler={addBlog}
+          title={newBlogTitle}
+          handleTitleChange={handleTitleChange}
+          author={newBlogAuthor}
+          handleAuthorChange={handleAuthorChange}
+          url={newBlogUrl}
+          handleUrlChange={handleUrlChange}
+        />
+      </Togglable>
+  ```
+3. Create reference to newBlogForm:
+  ```js
+  import React, { useState, useEffect, useRef } from 'react'
+
+  const App = () => {
+  // ...
+  const newBlogFormRef = useRef()
+  //...
+    <Togglable buttonLabel="Create new blog" ref={newBlogFormRef}>
+    //...
+    </Togglable>
+  )
+  ```
+
+4. Change the Togglable component as shown in the course material:
+
+  ```js
+  import React, { useState, useImperativeHandle } from 'react'
+
+  const Togglable = React.forwardRef((props, ref) => {
+    const [visible, setVisible] = useState(false)
+
+    const hideWhenVisible = { display: visible ? 'none' : '' }
+    const showWhenVisible = { display: visible ? '' : 'none' }
+
+    const toggleVisibility = () => {
+      setVisible(!visible)
+    }
+
+    useImperativeHandle(ref, () => {
+      return {
+        toggleVisibility
+      }
+    })
+
+    return (
+      <div>
+        <div style={hideWhenVisible}>
+          <button onClick={toggleVisibility}>{props.buttonLabel}</button>
+        </div>
+        <div style={showWhenVisible}>
+          {props.children}
+          <button onClick={toggleVisibility}>cancel</button>
+        </div>
+      </div>
+    )
+  })
+
+  export default Togglable
+  ```
+
+5. Hide the form by calling newBlogFormRef.current.toggleVisibility() after a new blog is created.
+  ```js
+    newBlogFormRef.current.toggleVisibility()
+  ```
+
+## Exercise 5.6 Bloglist frontend, step6
+Separate the form for creating a new blog into its own component, and move all the states required for creating a new blog to this component.
+The component must work like the NoteForm component from the [material](https://fullstackopen.com/en/part5/props_children_and_proptypes) of this part.
+1. Modify `NewBlogForm.js` to include all this state part:
+```js 
+const NewBlogForm = ({
+  createNewBlog
+}) => {
+  const [title, setTitle] = useState('')
+  const [author, setAuthor] = useState('')
+  const [url, setUrl] = useState('')
+
+  const handleTitleChange = (event) => {
+    setTitle(event.target.value)
+  }
+  const handleAuthorChange = (event) => {
+    setAuthor(event.target.value)
+  }
+  const handleUrlChange = (event) => {
+    setUrl(event.target.value)
+  }
+
+  const addBlog = async (event) => {
+    event.preventDefault()
+    createNewBlog({
+      title: title,
+      author: author,
+      url: url
+    })
+    setTitle('')
+    setAuthor('')
+    setUrl('')
+  }
+  ```
+
+  2. Simplify at App.js:
+  ```js
+    const addBlog = async (blogObject) => {
+    try {
+      const returnedBlog = await blogService.create(blogObject)
+      setBlogs(blogs.concat(returnedBlog))
+      notifyWith(`Added new blog: "${returnedBlog.title}" (by ${returnedBlog.author})`, 'notification')
+    } catch (error) {
+      notifyWith(`Unable to create new Blog. Error: ${error.response.data.error}`, 'error')
+    }
+    newBlogFormRef.current.toggleVisibility()
+  }
+
+  //...
+  
+        <NewBlogForm createNewBlog={addBlog} />
+  ```

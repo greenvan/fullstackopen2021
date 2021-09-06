@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import BlogList from './components/BlogList'
 import blogService from './services/blogs'
 
@@ -11,17 +11,18 @@ import Notification from './components/Notification'
 import LoginForm from './components/LoginForm'
 import NewBlogForm from './components/NewBlogForm'
 
+import Togglable from './components/Togglable'
+
 const App = () => {
   const [blogs, setBlogs] = useState([])
-  const [newBlogTitle, setNewBlogTitle] = useState('')
-  const [newBlogAuthor, setNewBlogAuthor] = useState('')
-  const [newBlogUrl, setNewBlogUrl] = useState('')
 
   const [notification, setNotification] = useState(null)
 
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
+
+  const newBlogFormRef = useRef()
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
@@ -68,36 +69,18 @@ const App = () => {
     setUser(null)
   }
 
-  const addBlog = async (event) => {
-    event.preventDefault()
-    const blogObject = {
-      title: newBlogTitle,
-      author: newBlogAuthor,
-      url: newBlogUrl
-    }
+  const addBlog = async (blogObject) => {
     try {
       const returnedBlog = await blogService.create(blogObject)
       setBlogs(blogs.concat(returnedBlog))
-      setNewBlogTitle('')
-      setNewBlogAuthor('')
-      setNewBlogUrl('')
       notifyWith(`Added new blog: "${returnedBlog.title}" (by ${returnedBlog.author})`, 'notification')
     } catch (error) {
       notifyWith(`Unable to create new Blog. Error: ${error.response.data.error}`, 'error')
     }
+    newBlogFormRef.current.toggleVisibility()
   }
 
-  const handleTitleChange = (event) => {
-    setNewBlogTitle(event.target.value)
-  }
-  const handleAuthorChange = (event) => {
-    setNewBlogAuthor(event.target.value)
-  }
-  const handleUrlChange = (event) => {
-    setNewBlogUrl(event.target.value)
-  }
-
-  if (user === null) {
+  if (user === null) { // TODO: or user token invalid
     return (
       <div>
         <Header />
@@ -117,15 +100,9 @@ const App = () => {
       <Header />
       <div>User {user.name} logged in. <button onClick={handleLogout}>Log out</button></div>
       <Notification notification={notification}/>
-      <NewBlogForm
-        onSubmitHandler={addBlog}
-        title={newBlogTitle}
-        handleTitleChange={handleTitleChange}
-        author={newBlogAuthor}
-        handleAuthorChange={handleAuthorChange}
-        url={newBlogUrl}
-        handleUrlChange={handleUrlChange}
-      />
+      <Togglable buttonLabel="Create new blog" ref={newBlogFormRef}>
+        <NewBlogForm createNewBlog={addBlog} />
+      </Togglable>
       <BlogList blogs={blogs}/>
       <Footer/>
     </div>
