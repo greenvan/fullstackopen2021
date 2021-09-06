@@ -15,11 +15,7 @@ import Togglable from './components/Togglable'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
-
   const [notification, setNotification] = useState(null)
-
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
 
   const newBlogFormRef = useRef()
@@ -45,8 +41,7 @@ const App = () => {
     }, 5000)
   }
 
-  const handleLogin = async (event) => {
-    event.preventDefault()
+  const handleLogin = async (username, password) => {
     try {
       const user = await loginService.login({
         username, password
@@ -56,8 +51,6 @@ const App = () => {
       )
       blogService.setToken(user.token)
       setUser(user)
-      setUsername('')
-      setPassword('')
     } catch (error) {
       notifyWith(`Error: ${error.response.data.error}`, 'error')
     }
@@ -85,12 +78,7 @@ const App = () => {
       <div>
         <Header />
         <Notification notification={notification}/>
-        <LoginForm
-          handleLogin={handleLogin}
-          username={username}
-          password={password}
-          handleUserChange={({ target }) => setUsername(target.value)}
-          handlePasswordChange={({ target }) => setPassword(target.value)}/>
+        <LoginForm handleLogin={handleLogin}/>
       </div>
     )
   }
