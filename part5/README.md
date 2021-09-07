@@ -519,3 +519,54 @@ const NewBlogForm = ({
   
         <NewBlogForm createNewBlog={addBlog} />
   ```
+
+## Exercise 5.7 Bloglist frontend, step7
+Add a button to each blog, which controls whether all of the details about the blog are shown or not.
+1. Add inline styles
+  ```js
+  const Blog = ({ blog }) => {
+  const blogStyle = {
+    paddingTop: 10,
+    paddingLeft: 2,
+    border: 'solid',
+    borderWidth: 1,
+    marginBottom: 5
+  }
+
+  return (
+    <div style={blogStyle}>
+      //...
+    </div>
+  )
+  }
+  ```
+2. Add state for visibility of the Blog
+  ```js
+  const [blogVisible, setBlogVisible] = useState(false)
+  const showWhenVisible = { display: blogVisible ? '' : 'none' }
+  ```
+3. Add a button to change state. Showing an arrow and the message "show" or "hide" depending on that state. Information is shown if `blogVisible` is set to true:
+  ```js
+  return (
+    <div style={blogStyle}>
+      <div>
+    &quot;{blog.title}&quot;
+
+        <button onClick={() => setBlogVisible(!blogVisible)}>
+          { blogVisible ? 'Hide \u2191' : 'Show details \u2193' }
+        </button>
+
+        <div style={showWhenVisible}>
+          Author: {blog.author} <br />
+          Url: <a href={blog.url}>{blog.url}</a> <br/>
+          Like count: {blog.likes}  <br/>
+          <button>Like &#128077; </button>
+        </div>
+      </div>
+    </div>
+  )
+  ```
+  Like button does nothing at this point.
+
+  
+![Screenshot of my exercise solution](img/5.7.PNG)
