@@ -570,3 +570,68 @@ Add a button to each blog, which controls whether all of the details about the b
 
   
 ![Screenshot of my exercise solution](img/5.7.PNG)
+
+
+## Exercise 5.8 Bloglist frontend, step8
+Implement the functionality for the like button. 
+1. Add update function to `services/blogs.js`:
+  ```js
+  const update = async (id, newObject) => {
+    const response = await axios.put(`${baseUrl}/${id}`, newObject)
+    return response.data
+  }
+  ```
+2. Add increaseLikes handler and elevate to their parents Blog and BlogList in order to be defined in `App.js`
+
+  ```js 
+  const Blog = ({ blog, updateBlog }) => { 
+
+    //...
+
+  const increaseLikes = async (event) => {
+    blog.likes++
+    updateBlog(blog)
+  }
+
+  return (
+  //...
+    <button onClick={increaseLikes}>Like &#128077; </button>
+  //...
+  )
+  }
+
+  const BlogList = ({ blogs, updateBlog }) => (
+   <div>
+     <h2>Blog list</h2>
+     {blogs.map(blog =>
+       <Blog key={blog.id} blog={blog} updateBlog={updateBlog}/>
+     )}
+   </div>
+  ) 
+  ```
+  3. In `App.js` create `updateBlog` method:
+  ```js
+    const updateBlog = async (blogObject) => {
+    const blogToUpdate = {
+      title: blogObject.title,
+      author: blogObject.author,
+      url: blogObject.url,
+      likes: blogObject.likes
+    }
+
+    if (blogObject.user != null) blogToUpdate.user = blogObject.user.id
+    console.log(blogToUpdate)
+    try {
+      const returnedBlog = await blogService.update(blogObject.id, blogToUpdate)
+      // Actualizar en el estado de la lista de Blogs el blog actualizado
+      setBlogs(blogs.map(blog => blog.id === blogObject.id ? blogObject : blog))
+      console.log(`Updated: "${returnedBlog.title} (by ${returnedBlog.author})`)
+    } catch (error) {
+      notifyWith(`Unable to update Blog. Error: ${error.response.data.error}`, 'error')
+    }
+  }
+  ```
+   Pass it to the `BlogList` component:
+   ```xml   
+      <BlogList blogs={blogs} updateBlog={updateBlog}/>
+   ```

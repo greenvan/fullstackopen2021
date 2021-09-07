@@ -72,6 +72,24 @@ const App = () => {
     }
     newBlogFormRef.current.toggleVisibility()
   }
+  const updateBlog = async (blogObject) => {
+    const blogToUpdate = {
+      title: blogObject.title,
+      author: blogObject.author,
+      url: blogObject.url,
+      likes: blogObject.likes
+    }
+
+    if (blogObject.user != null) blogToUpdate.user = blogObject.user.id
+    try {
+      const returnedBlog = await blogService.update(blogObject.id, blogToUpdate)
+      // Actualizar en el estado de la lista de Blogs el blog actualizado
+      setBlogs(blogs.map(blog => blog.id === blogObject.id ? blogObject : blog))
+      console.log(`Updated: "${returnedBlog.title} (by ${returnedBlog.author})`)
+    } catch (error) {
+      notifyWith(`Unable to update Blog. Error: ${error.response.data.error}`, 'error')
+    }
+  }
 
   if (user === null) { // TODO: or user token invalid
     return (
@@ -91,7 +109,7 @@ const App = () => {
       <Togglable buttonLabel="Create new blog" ref={newBlogFormRef}>
         <NewBlogForm createNewBlog={addBlog} />
       </Togglable>
-      <BlogList blogs={blogs}/>
+      <BlogList blogs={blogs} updateBlog={updateBlog}/>
       <Footer/>
     </div>
   )
