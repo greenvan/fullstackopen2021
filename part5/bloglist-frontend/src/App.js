@@ -20,9 +20,11 @@ const App = () => {
 
   const newBlogFormRef = useRef()
 
+  const sortingByLikes = (a, b) => (b.likes - a.likes)
+
   useEffect(() => {
     blogService.getAll().then(blogs =>
-      setBlogs(blogs)
+      setBlogs(blogs.sort(sortingByLikes))
     )
   }, [])
 
@@ -65,7 +67,7 @@ const App = () => {
   const addBlog = async (blogObject) => {
     try {
       const returnedBlog = await blogService.create(blogObject)
-      setBlogs(blogs.concat(returnedBlog))
+      setBlogs(blogs.concat(returnedBlog).sort(sortingByLikes))
       notifyWith(`Added new blog: "${returnedBlog.title}" (by ${returnedBlog.author})`, 'notification')
     } catch (error) {
       notifyWith(`Unable to create new Blog. Error: ${error.response.data.error}`, 'error')
@@ -84,7 +86,11 @@ const App = () => {
     try {
       const returnedBlog = await blogService.update(blogObject.id, blogToUpdate)
       // Actualizar en el estado de la lista de Blogs el blog actualizado
-      setBlogs(blogs.map(blog => blog.id === blogObject.id ? blogObject : blog))
+      setBlogs(
+        blogs
+          .map(blog => blog.id === blogObject.id ? blogObject : blog)
+          .sort(sortingByLikes)
+      )
       console.log(`Updated: "${returnedBlog.title} (by ${returnedBlog.author})`)
     } catch (error) {
       notifyWith(`Unable to update Blog. Error: ${error.response.data.error}`, 'error')

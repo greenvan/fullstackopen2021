@@ -609,7 +609,7 @@ Implement the functionality for the like button.
    </div>
   ) 
   ```
-  3. In `App.js` create `updateBlog` method:
+3. In `App.js` create `updateBlog` method:
   ```js
     const updateBlog = async (blogObject) => {
     const blogToUpdate = {
@@ -635,3 +635,12 @@ Implement the functionality for the like button.
    ```xml   
       <BlogList blogs={blogs} updateBlog={updateBlog}/>
    ```
+
+## Exercise 5.9 Bloglist frontend, step8
+Modify the application to list the blog posts by the number of likes.
+Each time setBlogs is called, blog list is sorted using `sortingByLikes` that orders decreasingly by the number of likes:
+```js
+  const sortingByLikes = (a, b) => (b.likes - a.likes)
+  //...
+  setBlogs(blogs.sort(sortingByLikes))
+```
