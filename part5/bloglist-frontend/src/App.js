@@ -97,6 +97,21 @@ const App = () => {
     }
   }
 
+  const deleteBlog = async (event) => {
+    try {
+      const id = event.target.id
+      if (window.confirm(`Delete '${event.target.name}'?`)) {
+        const response = await blogService.del(id)
+        notifyWith('Blog has beed deleted', 'notification')
+        console.log(response)
+
+        setBlogs(blogs.filter(blog => blog.id !== id))
+      }
+    } catch (error) {
+      notifyWith(`Unable to delete Blog. Error: ${error.response.data.error}`, 'error')
+    }
+  }
+
   if (user === null) { // TODO: or user token invalid
     return (
       <div>
@@ -115,7 +130,7 @@ const App = () => {
       <Togglable buttonLabel="Create new blog" ref={newBlogFormRef}>
         <NewBlogForm createNewBlog={addBlog} />
       </Togglable>
-      <BlogList blogs={blogs} updateBlog={updateBlog}/>
+      <BlogList blogs={blogs} updateBlog={updateBlog} deleteBlog={deleteBlog} user={user.username}/>
       <Footer/>
     </div>
   )

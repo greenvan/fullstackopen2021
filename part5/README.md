@@ -636,7 +636,7 @@ Implement the functionality for the like button.
       <BlogList blogs={blogs} updateBlog={updateBlog}/>
    ```
 
-## Exercise 5.9 Bloglist frontend, step8
+## Exercise 5.9 Bloglist frontend, step9
 Modify the application to list the blog posts by the number of likes.
 Each time setBlogs is called, blog list is sorted using `sortingByLikes` that orders decreasingly by the number of likes:
 ```js
@@ -644,3 +644,55 @@ Each time setBlogs is called, blog list is sorted using `sortingByLikes` that or
   //...
   setBlogs(blogs.sort(sortingByLikes))
 ```
+
+## Exercise 5.10 Blog list frontend, step10
+Add a new button for deleting blog posts.
+1. Add method for deleting entries in `services/blogs.js`:
+  ```js
+  const del = async (id) => {
+    const config = {
+      headers: { Authorization: token }
+    }
+    const response = await axios.delete(`${baseUrl}/${id}`, config)
+    return response
+  }
+  ```
+2. Add a button for deletion to `Blog` component:
+  ```js
+  const Blog = ({ blog, updateBlog, deleteBlog, showDeleteButton }) => {
+    //...
+  ```
+  ```xml
+        <div style={showWhenVisible}>
+          //...
+          {(blog.user) && <div>Added by: {blog.user.name} </div>}
+          {showDeleteButton && <button id={blog.id} name={'"' + (blog.title) + '"' + ' (by ' + (blog.author) + ')'} onClick={deleteBlog}>Remove &#128465; </button>}
+        </div>
+  ```
+3. Pass the information from `BlogList` component:
+  ```js
+  const BlogList = ({ blogs, updateBlog, deleteBlog, user }) => (
+  //...
+      <Blog key={blog.id} blog={blog} updateBlog={updateBlog} deleteBlog={deleteBlog} showDeleteButton={(blog.user && user === blog.user.username)}/>
+  ```
+4. In `App.js` add `deleteBlog` for handling deletion button event
+  ```js
+  const deleteBlog = async (event) => {
+    try {
+      const id = event.target.id
+      if (window.confirm(`Delete '${event.target.name}'?`)) {
+        const response = await blogService.del(id)
+        notifyWith('Blog has beed deleted', 'notification')
+        console.log(response)
+
+        setBlogs(blogs.filter(blog => blog.id !== id))
+      }
+    } catch (error) {
+      notifyWith(`Unable to delete Blog. Error: ${error.response.data.error}`, 'error')
+    }
+  }
+  ```
+  And pass the information to the BlogList component:
+  ```xml  
+      <BlogList blogs={blogs} updateBlog={updateBlog} deleteBlog={deleteBlog} user={user.username}/>
+  ```
