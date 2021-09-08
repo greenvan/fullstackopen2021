@@ -696,3 +696,49 @@ Add a new button for deleting blog posts.
   ```xml  
       <BlogList blogs={blogs} updateBlog={updateBlog} deleteBlog={deleteBlog} user={user.username}/>
   ```
+
+##  5.11 Blog list frontend, step11
+Define PropTypes for one of the components of your application.
+1. Install the package: `npm install prop-types`
+2. Define PropTypes to the components:
+  ```js
+  Togglable.propTypes = {
+    buttonLabel: PropTypes.string.isRequired
+  }
+  ```
+  ```js
+  NewBlogForm.propTypes = {
+    createNewBlog: PropTypes.func.isRequired
+  }
+  ```
+  ```js
+  LoginForm.propTypes = {
+    handleLogin: PropTypes.func.isRequired
+  }
+  ```
+  ```js
+  Blog.propTypes = {
+    blog: PropTypes.any.isRequired, 
+    updateBlog: PropTypes.func.isRequired,
+    deleteBlog: PropTypes.func.isRequired
+  }
+
+  BlogList.propTypes = {
+    blogs: PropTypes.array.isRequired,
+    updateBlog: PropTypes.func.isRequired,
+    deleteBlog: PropTypes.func.isRequired,
+    user: PropTypes.string.isRequired 
+  }
+  ```
+## 5.12 Blog list frontend, step12
+Add ESlint to the project. Define the configuration according to your liking. Fix all of the linter errors.
+1. Install the eslint-plugin-jest package in order to avoid undesired and irrelevant linter errors: `npm install --save-dev eslint-plugin-jest`
+2. Create `.eslintrc.js` file.
+3. Create `.eslintignore` file.
+4. Create a npm script to run the lint en `package.json` file
+5. Correct lint errors:
+
+   5.1 Fix  warning 'Component definition is missing display name' at Togglable component:
+    ```js
+    Togglable.displayName = 'Togglable'
+    ```

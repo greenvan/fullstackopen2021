@@ -82,7 +82,7 @@ const App = () => {
       likes: blogObject.likes
     }
 
-    if (blogObject.user != null) blogToUpdate.user = blogObject.user.id
+    if (blogObject.user !== null) blogToUpdate.user = blogObject.user.id
     try {
       const returnedBlog = await blogService.update(blogObject.id, blogToUpdate)
       // Actualizar en el estado de la lista de Blogs el blog actualizado

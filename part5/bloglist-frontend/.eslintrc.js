@@ -1,43 +1,56 @@
+/* eslint-disable linebreak-style */
+/* eslint-env node */
 module.exports = {
-  env: {
-    browser: true,
-    commonjs: true,
-    es2021: true,
-    jest: true
+  'env': {
+    'browser': true,
+    'es6': true,
+    'jest/globals': true
   },
-  extends: [
-    'plugin:react/recommended',
-    'standard'
+  'extends': [
+    'eslint:recommended',
+    'plugin:react/recommended'
   ],
-  parserOptions: {
-    ecmaFeatures: {
-      jsx: true
+  'parserOptions': {
+    'ecmaFeatures': {
+      'jsx': true
     },
-    ecmaVersion: 12
+    'ecmaVersion': 2018,
+    'sourceType': 'module'
   },
-  plugins: [
-    'react'
+  'plugins': [
+    'react', 'jest'
   ],
-  rules: {
-    indent: [
+  'rules': {
+    'indent': [
       'error',
       2
     ],
-    quotes: [
+    'linebreak-style': [
+      'error',
+      'windows'
+    ],
+    'quotes': [
       'error',
       'single'
     ],
-    semi: [
+    'semi': [
       'error',
       'never'
     ],
-    eqeqeq: 'error',
+    'eqeqeq': 'error',
     'no-trailing-spaces': 'error',
     'object-curly-spacing': [
       'error', 'always'
     ],
     'arrow-spacing': [
-      'error', { before: true, after: true }
-    ]
+      'error', { 'before': true, 'after': true }
+    ],
+    'no-console': 0,
+    'react/prop-types': 0
+  },
+  'settings': {
+    'react': {
+      'version': 'detect'
+    }
   }
 }

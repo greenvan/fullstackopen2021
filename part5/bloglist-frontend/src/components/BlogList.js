@@ -1,6 +1,5 @@
-/* eslint-disable react/prop-types */
-
 import React, { useState } from 'react'
+import PropTypes from 'prop-types'
 
 const Blog = ({ blog, updateBlog, deleteBlog, showDeleteButton }) => {
   const [blogVisible, setBlogVisible] = useState(false)
@@ -14,7 +13,8 @@ const Blog = ({ blog, updateBlog, deleteBlog, showDeleteButton }) => {
     marginBottom: 5
   }
 
-  const increaseLikes = async (event) => {
+
+  const increaseLikes = async () => {//const increaseLikes = async (event) => {
     blog.likes++
     updateBlog(blog)
   }
@@ -47,5 +47,18 @@ const BlogList = ({ blogs, updateBlog, deleteBlog, user }) => (
     )}
   </div>
 )
+
+Blog.propTypes = {
+  blog: PropTypes.any.isRequired, // TODO: must have specific fields (build a model)
+  updateBlog: PropTypes.func.isRequired,
+  deleteBlog: PropTypes.func.isRequired
+}
+
+BlogList.propTypes = {
+  blogs: PropTypes.array.isRequired,
+  updateBlog: PropTypes.func.isRequired,
+  deleteBlog: PropTypes.func.isRequired,
+  user: PropTypes.string.isRequired // Maybe it is not necessary
+}
 
 export default BlogList
