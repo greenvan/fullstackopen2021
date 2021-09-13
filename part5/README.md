@@ -897,5 +897,24 @@ describe('Blog component tests', () => {
 ## 5.15 Blog list tests, step3
 Make a test which ensures that if the like button is clicked twice, the event handler the component received as props is called twice.
 
+Added CSS class in `Blog.js` component in order to identify like Button:
+```js
+  className='likeButton'
+```
+
+```js
+  test('5.15 Clicking like button twice calls twice the event handler', () => {
+
+    const showButton = component.getByText('Show details \u2193')
+    fireEvent.click(showButton)
+
+    const likeButton = component.container.querySelector('.likeButton')
+    fireEvent.click(likeButton)
+    fireEvent.click(likeButton)
+
+    expect(mockHandleUpdate.mock.calls).toHaveLength(2)
+  })
+```
+
 ## 5.16 Blog list tests, step4
 Make a test for the new blog form. The test should check, that the form calls the event handler it received as props with the right details when a new blog is created.

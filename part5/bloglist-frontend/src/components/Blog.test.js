@@ -62,4 +62,17 @@ describe('Blog component tests', () => {
       'Like count'
     )
   })
+
+
+  test('5.15 Clicking like button twice calls twice the event handler', () => {
+
+    const showButton = component.getByText('Show details \u2193')
+    fireEvent.click(showButton)
+
+    const likeButton = component.container.querySelector('.likeButton')
+    fireEvent.click(likeButton)
+    fireEvent.click(likeButton)
+
+    expect(mockHandleUpdate.mock.calls).toHaveLength(2)
+  })
 })

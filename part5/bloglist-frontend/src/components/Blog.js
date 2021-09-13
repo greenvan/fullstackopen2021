@@ -9,7 +9,7 @@ const BlogDetails = ({ blog,  update, del, showDeleteButton }) => {
   return (
     <div className='blogDetails'>
       <a href={blog.url}>{blog.url}</a> <br/>
-          Like count: {blog.likes}  <button onClick={increaseLikes}>Like &#128077; </button><br/>
+          Like count: {blog.likes}  <button onClick={increaseLikes}  className='likeButton'>Like &#128077; </button><br/>
       {(blog.user) && <div>Added by: {blog.user.name} </div>}
       {showDeleteButton && <button id={blog.id} name={'"' + (blog.title) + '"' + ' (by ' + (blog.author) + ')'} onClick={del}>Remove &#128465; </button>}
     </div>
