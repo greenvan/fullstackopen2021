@@ -757,7 +757,7 @@ Make a test which checks that the component displaying a blog renders the blog's
   import { render } from '@testing-library/react'
   import Blog from './Blog'
 
-  test('renders content', () => {
+  test('5.13 renders title and author, but no url or likes by default', () => {
     const blog = {
       title: 'Title of my test blog - 1',
       author: 'Author of my test blog - 1',
@@ -783,6 +783,10 @@ Make a test which checks that the component displaying a blog renders the blog's
 
     expect(div).not.toHaveTextContent(
       'Url of my test blog - 1'
+    )
+    
+    expect(div).not.toHaveTextContent(
+      'Like count'
     )
   })
   ```
@@ -842,6 +846,53 @@ const Blog = ({ blog, updateBlog, deleteBlog, showDeleteButton }) => {
 
 ## 5.14 Blog list tests, step2
 Make a test which checks that the blog's url and number of likes are shown when the button controlling the shown details has been clicked.
+
+ * Created `describe` block for this tests.
+ * Extracted common parts to a `beforeEach` function
+ * Created test 5.14
+
+```js
+describe('Blog component tests', () => {
+  let component
+  const mockHandleUpdate = jest.fn()
+  const mockHandleDelete = jest.fn()
+
+  beforeEach(() => {
+    const blog = {
+      title: 'Title of my test blog - 1',
+      author: 'Author of my test blog - 1',
+      url: 'Url of my test blog - 1',
+      likes: 5
+    }
+    component = render(
+      <Blog blog={blog} updateBlog={mockHandleUpdate} deleteBlog={mockHandleDelete}/>
+    )
+  })
+  
+  //...
+
+  test('5.14 clicking the button shows url and likes', () => {
+
+    const showButton = component.getByText('Show details \u2193')
+    fireEvent.click(showButton)
+
+    component.debug()
+
+    const hideButton = component.getByText('Hide \u2191')
+    expect(hideButton).toBeDefined()
+
+    const div = component.container.querySelector('.blogDetails')
+    expect(div).toBeDefined()
+
+    expect(div).toHaveTextContent(
+      'Url of my test blog - 1'
+    )
+    expect(div).toHaveTextContent(
+      'Like count'
+    )
+  })
+})
+```
 
 ## 5.15 Blog list tests, step3
 Make a test which ensures that if the like button is clicked twice, the event handler the component received as props is called twice.
