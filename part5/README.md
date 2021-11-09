@@ -3,9 +3,31 @@
 
 This is a compilation of the exercises of Part 5.
 
+- [Exercise 5.1: Blog list frontend, step1](#exercise-51--blog-list-frontend--step1)
+- [Exercise 5.2: Blog list frontend, step2](#exercise-52--blog-list-frontend--step2)
+- [Exercise 5.3 Bloglist frontend, step3](#exercise-53-bloglist-frontend--step3)
+- [Exercise 5.4 bloglist frontend, step4](#exercise-54-bloglist-frontend--step4)
+- [Exercise 5.5 Bloglist frontend, step5](#exercise-55-bloglist-frontend--step5)
+- [Exercise 5.6 Bloglist frontend, step6](#exercise-56-bloglist-frontend--step6)
+- [Exercise 5.7 Bloglist frontend, step7](#exercise-57-bloglist-frontend--step7)
+- [Exercise 5.8 Bloglist frontend, step8](#exercise-58-bloglist-frontend--step8)
+- [Exercise 5.9 Bloglist frontend, step9](#exercise-59-bloglist-frontend--step9)
+- [Exercise 5.10 Blog list frontend, step10](#exercise-510-blog-list-frontend--step10)
+- [Exercise 5.11 Blog list frontend, step11](#exercise-511-blog-list-frontend--step11)
+- [Exercise 5.12 Blog list frontend, step12](#exercise-512-blog-list-frontend--step12)
+- [Exercise 5.13 Blog list tests, step1](#exercise-513-blog-list-tests--step1)
+- [Exercise 5.14 Blog list tests, step2](#exercise-514-blog-list-tests--step2)
+- [Exercise 5.15 Blog list tests, step3](#exercise-515-blog-list-tests--step3)
+- [Exercise 5.16 Blog list tests, step4](#exercise-516-blog-list-tests--step4)
+- [Exercise 5.17 bloglist end to end testing, step1](#exercise-517-bloglist-end-to-end-testing--step1)
+- [Exercise 5.18 bloglist end to end testing, step2](#exercise-518-bloglist-end-to-end-testing--step2)
+- [Exercise 5.19 bloglist end to end testing, step3](#exercise-519-bloglist-end-to-end-testing--step3)
+- [Exercise 5.20 bloglist end to end testing, step4](#exercise-520-bloglist-end-to-end-testing--step4)
+- [Exercise 5.21 bloglist end to end testing, step5](#exercise-521-bloglist-end-to-end-testing--step5)
+- [Exercise 5.22 bloglist end to end testing, step6](#exercise-522-bloglist-end-to-end-testing--step6)
 
 
-## Exercise 5.1: Blog list frontend , step1
+## Exercise 5.1: Blog list frontend, step1
 1. Clone the application from Github with the command: 
 
     ```bash 
@@ -118,7 +140,7 @@ const App = () => {
 }
 ```
 
-## Exercise 5.2: Blog list frontend , step2
+## Exercise 5.2: Blog list frontend, step2
 Make the login 'permanent' by using the local storage and implement a way to log out.
 
 In the `handlelogin` function we store in the value `loggedBlogappUser` in local storage :
@@ -310,7 +332,7 @@ Expand your application to allow a logged-in user to add new blogs
 
 At this point the app does add a new Blog if no validation error occurs. User is not informed about successful and unsuccessful operations.
 
-## 5.4 bloglist frontend, step4
+## Exercise 5.4 bloglist frontend, step4
 Implement notifications which inform the user about successful and unsuccessful operations at the top of the page. 
 
 1. In `App.js`, instead of "errorMessage" we will use "notification" for a more general purpose. It will contain the message and the type of notification (error or notification)
@@ -697,7 +719,7 @@ Add a new button for deleting blog posts.
       <BlogList blogs={blogs} updateBlog={updateBlog} deleteBlog={deleteBlog} user={user.username}/>
   ```
 
-##  5.11 Blog list frontend, step11
+## Exercise 5.11 Blog list frontend, step11
 Define PropTypes for one of the components of your application.
 1. Install the package: `npm install prop-types`
 2. Define PropTypes to the components:
@@ -730,7 +752,7 @@ Define PropTypes for one of the components of your application.
     user: PropTypes.string.isRequired 
   }
   ```
-## 5.12 Blog list frontend, step12
+## Exercise 5.12 Blog list frontend, step12
 Add ESlint to the project. Define the configuration according to your liking. Fix all of the linter errors.
 1. Install the eslint-plugin-jest package in order to avoid undesired and irrelevant linter errors: `npm install --save-dev eslint-plugin-jest`
 2. Create `.eslintrc.js` file.
@@ -743,7 +765,7 @@ Add ESlint to the project. Define the configuration according to your liking. Fi
     Togglable.displayName = 'Togglable'
     ```
 
-## 5.13  Blog list tests, step1
+## Exercise 5.13 Blog list tests, step1
 Make a test which checks that the component displaying a blog renders the blog's title and author, but does not render its url or number of likes by default. Add CSS-classes to the component to help the testing as necessary.
 
 1. Install the react-testing-library  with the command:
@@ -844,7 +866,7 @@ const Blog = ({ blog, updateBlog, deleteBlog, showDeleteButton }) => {
 }
 ```
 
-## 5.14 Blog list tests, step2
+## Exercise 5.14 Blog list tests, step2
 Make a test which checks that the blog's url and number of likes are shown when the button controlling the shown details has been clicked.
 
  * Created `describe` block for this tests.
@@ -894,7 +916,7 @@ describe('Blog component tests', () => {
 })
 ```
 
-## 5.15 Blog list tests, step3
+## Exercise 5.15 Blog list tests, step3
 Make a test which ensures that if the like button is clicked twice, the event handler the component received as props is called twice.
 
 Added CSS class in `Blog.js` component in order to identify like Button:
@@ -916,7 +938,7 @@ Added CSS class in `Blog.js` component in order to identify like Button:
   })
 ```
 
-## 5.16 Blog list tests, step4
+## Exercise 5.16 Blog list tests, step4
 Make a test for the new blog form. The test should check, that the form calls the event handler it received as props with the right details when a new blog is created.
 
 Added an id field in each <input> and in <form> in `NewBlogForm.js`:
@@ -968,5 +990,192 @@ test('5.16 New blog created with right details', () => {
   expect(createNewBlog.mock.calls[0][0].author).toBe('Author of my test blog - 2')
   expect(createNewBlog.mock.calls[0][0].url).toBe('Url of my test blog - 2')
 })
-
 ```
+
+## Exercise 5.17 bloglist end to end testing, step1
+Configure Cypress to your project. Make a test for checking that the application displays the login form by default.
+
+1. install Cypress to the frontend as development dependency
+  `npm install --save-dev cypress`
+  1.1 On windows it is necessary to execute the following to install properly: `.\node_modules\.bin\cypress.cmd install --force`
+
+
+ 2. Add an npm-script to run it:
+`"cypress:open": "cypress open"`
+
+3. At the backenk, add an npm-script which starts it in test mode, or so that NODE_ENV is test.
+`"start:test": "cross-env NODE_ENV=test node index.js"`
+
+4. Start backend (as test) with `npm run start:test`
+5. Start frontend with `npm start`
+
+
+Error on frontend: `ReferenceError: React is not defined`
+solution: add these lines on top of index.js 
+```js
+import React from 'react'
+import ReactDOM from 'react-dom'
+```
+6. Start Cypress using command `npm run cypress:open`
+  When we first run Cypress, it creates a cypress directory. Delete the directories inside `integration` folder which contain a bunch of example tests.
+
+7. Write a new test in a new file called `bloglist_app.spec.js`:
+  The structure of the test must be as follows:
+  ``` js
+  describe('Blog app', function() {
+    beforeEach(function() {
+      cy.request('POST', 'http://localhost:3003/api/testing/reset')
+      cy.visit('http://localhost:3000')
+    })
+
+    it('Login form is shown', function() {
+      // ...
+    })
+  })
+  ```
+  The beforeEach formatting blog must empty the database using for example the method we used in the material.
+
+  7.1 Add a new router to the backend in order to reset the database (File `controllers/testing.js`)
+    ```js
+      const router = require('express').Router()
+      const Blog = require('../models/blog')
+      const User = require('../models/user')
+
+      router.post('/reset', async (request, response) => {
+        await Blog.deleteMany({})
+        await User.deleteMany({})
+
+        response.status(204).end()
+      })
+
+      module.exports = router
+    ```
+
+  7.2 Add the new router to the backend only if the application is run on test-mode
+    ```js
+      if (process.env.NODE_ENV === 'test') {
+      const testingRouter = require('./controllers/testing')
+      app.use('/api/testing', testingRouter)
+    }
+    ```
+  7.3 Re-run backend on test mode: `npm run start:test`
+  7.4 Write test "Login form is shown':
+    ```js
+      it('Login form is shown', function() {
+        cy.contains ('Log in to application')
+      })
+    ```
+8. Run test
+9. Correct Eslint error by installing `eslint-plugin-cypress` as a development dependency
+  ```bash
+    npm install eslint-plugin-cypress --save-dev
+  ```
+  Change the configuration in `.eslintrc.js` like so:
+  ```json
+    module.exports = {
+      "env": {
+          "browser": true,
+          "es6": true,
+          "jest/globals": true,
+          "cypress/globals": true
+      },
+      "extends": [ 
+        // ...
+      ],
+      "parserOptions": {
+        // ...
+      },
+      "plugins": [
+          "react", "jest", "cypress"
+      ],
+      "rules": {
+        // ...
+      }
+    }
+  ```
+
+## Exercise 5.18 bloglist end to end testing, step2
+Make tests for logging in. Test both successful and unsuccessful login attempts. Make a new user in the beforeEach block for the tests.
+Check that the notification shown with unsuccessful login is displayed red.
+
+1. Add a new user on the beforeEach function:
+  ```js
+  const user = {
+      name: 'Green Van',
+      username: 'greenvan',
+      password: 'mypass'
+    }
+    cy.request('POST', 'http://localhost:3003/api/users/', user)
+  ```
+2. Modify form on frontend to include ids in the input fields:
+  ```html
+      <form className='login' onSubmit={login}>
+        <ul>
+          <li>
+            <label htmlFor="username">Username: </label>
+            <input
+              id='username'
+              className='login'
+              type="text"
+              value={username}
+              name="Username"
+              onChange={handleUserChange}
+            />
+          </li>
+          <li>
+            <label htmlFor="password">Password: </label>
+            <input
+              id='password'
+              className='login'
+              type="password"
+              value={password}
+              name="Password"
+              onChange={handlePasswordChange}
+            />
+          </li>
+          <li className="button">
+            <button id="login-button" type="submit">login</button>
+          </li>
+        </ul>
+      </form>
+  ```
+  3. Write tests for successful log in
+    ```js
+      it('succeeds with correct credentials', function() {
+        cy.get('#username').type('greenvan')
+        cy.get('#password').type('mypass')
+        cy.get('#login-button').click()
+
+        cy.contains('User Green Van logged in')
+      })
+    ```
+  4. Write tests for unsuccessful log in
+    ```js
+      it('fails with wrong credentials', function() {
+        cy.get('#username').type('greenvan')
+        cy.get('#password').type('wrong')
+        cy.get('#login-button').click()
+
+
+        cy.get('.error')
+          .should('contain', 'invalid username or password')
+          .and('have.css', 'color', 'rgb(255, 0, 0)')
+          .and('have.css', 'border-style', 'solid')
+
+        cy.get('html').should('not.contain', 'User Green Van logged in')
+      })
+    ```
+
+## Exercise 5.19 bloglist end to end testing, step3
+Make a test which checks that a logged-in user can create a new blog. The structure of the test could be as follows:
+
+## Exercise 5.20 bloglist end to end testing, step4
+Make a test which checks that users can like a blog.
+
+## Exercise 5.21 bloglist end to end testing, step5
+Make a test for ensuring that the user who created a blog can delete it.
+
+Optional bonus exercise: also check that other users cannot delete the blog.
+
+## Exercise 5.22 bloglist end to end testing, step6
+Make a test which checks that the blogs are ordered according to likes with the blog with the most likes being first.

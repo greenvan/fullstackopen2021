@@ -1,0 +1,9 @@
+PUT http://localhost:3003/api/blogs/5a422a851b54a676234d17f7
+Content-Type: application/json
+
+{
+  "title": "Mi titulo cambiado pero que no existía antes",
+  "author": "Green Van",
+  "url": "url del blog",
+  "likes": 5
+}

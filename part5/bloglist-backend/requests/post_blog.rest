@@ -1,0 +1,10 @@
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+
+{
+  "title": "My saved blog",
+  "author": "Green Van",
+  "url": "url del blog",
+  "likes": 7,
+  "userId": "60db14dca06c694a9871f806"
+}
