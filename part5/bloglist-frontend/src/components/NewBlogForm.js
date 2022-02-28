@@ -59,7 +59,7 @@ const NewBlogForm = ({
             />
           </li>
           <li className="button">
-            <button type="submit">Create</button>
+            <button id='btnNewBlog' type="submit">Create</button>
           </li>
         </ul>
       </form>

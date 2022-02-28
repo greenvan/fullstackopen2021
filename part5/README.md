@@ -3,28 +3,28 @@
 
 This is a compilation of the exercises of Part 5.
 
-- [Exercise 5.1: Blog list frontend, step1](#exercise-51--blog-list-frontend--step1)
-- [Exercise 5.2: Blog list frontend, step2](#exercise-52--blog-list-frontend--step2)
-- [Exercise 5.3 Bloglist frontend, step3](#exercise-53-bloglist-frontend--step3)
-- [Exercise 5.4 bloglist frontend, step4](#exercise-54-bloglist-frontend--step4)
-- [Exercise 5.5 Bloglist frontend, step5](#exercise-55-bloglist-frontend--step5)
-- [Exercise 5.6 Bloglist frontend, step6](#exercise-56-bloglist-frontend--step6)
-- [Exercise 5.7 Bloglist frontend, step7](#exercise-57-bloglist-frontend--step7)
-- [Exercise 5.8 Bloglist frontend, step8](#exercise-58-bloglist-frontend--step8)
-- [Exercise 5.9 Bloglist frontend, step9](#exercise-59-bloglist-frontend--step9)
-- [Exercise 5.10 Blog list frontend, step10](#exercise-510-blog-list-frontend--step10)
-- [Exercise 5.11 Blog list frontend, step11](#exercise-511-blog-list-frontend--step11)
-- [Exercise 5.12 Blog list frontend, step12](#exercise-512-blog-list-frontend--step12)
-- [Exercise 5.13 Blog list tests, step1](#exercise-513-blog-list-tests--step1)
-- [Exercise 5.14 Blog list tests, step2](#exercise-514-blog-list-tests--step2)
-- [Exercise 5.15 Blog list tests, step3](#exercise-515-blog-list-tests--step3)
-- [Exercise 5.16 Blog list tests, step4](#exercise-516-blog-list-tests--step4)
-- [Exercise 5.17 bloglist end to end testing, step1](#exercise-517-bloglist-end-to-end-testing--step1)
-- [Exercise 5.18 bloglist end to end testing, step2](#exercise-518-bloglist-end-to-end-testing--step2)
-- [Exercise 5.19 bloglist end to end testing, step3](#exercise-519-bloglist-end-to-end-testing--step3)
-- [Exercise 5.20 bloglist end to end testing, step4](#exercise-520-bloglist-end-to-end-testing--step4)
-- [Exercise 5.21 bloglist end to end testing, step5](#exercise-521-bloglist-end-to-end-testing--step5)
-- [Exercise 5.22 bloglist end to end testing, step6](#exercise-522-bloglist-end-to-end-testing--step6)
+- [Exercise 5.1: Blog list frontend, step1](#exercise-51-blog-list-frontend-step1)
+- [Exercise 5.2: Blog list frontend, step2](#exercise-52-blog-list-frontend-step2)
+- [Exercise 5.3 Bloglist frontend, step3](#exercise-53-bloglist-frontend-step3)
+- [Exercise 5.4 bloglist frontend, step4](#exercise-54-bloglist-frontend-step4)
+- [Exercise 5.5 Bloglist frontend, step5](#exercise-55-bloglist-frontend-step5)
+- [Exercise 5.6 Bloglist frontend, step6](#exercise-56-bloglist-frontend-step6)
+- [Exercise 5.7 Bloglist frontend, step7](#exercise-57-bloglist-frontend-step7)
+- [Exercise 5.8 Bloglist frontend, step8](#exercise-58-bloglist-frontend-step8)
+- [Exercise 5.9 Bloglist frontend, step9](#exercise-59-bloglist-frontend-step9)
+- [Exercise 5.10 Blog list frontend, step10](#exercise-510-blog-list-frontend-step10)
+- [Exercise 5.11 Blog list frontend, step11](#exercise-511-blog-list-frontend-step11)
+- [Exercise 5.12 Blog list frontend, step12](#exercise-512-blog-list-frontend-step12)
+- [Exercise 5.13 Blog list tests, step1](#exercise-513-blog-list-tests-step1)
+- [Exercise 5.14 Blog list tests, step2](#exercise-514-blog-list-tests-step2)
+- [Exercise 5.15 Blog list tests, step3](#exercise-515-blog-list-tests-step3)
+- [Exercise 5.16 Blog list tests, step4](#exercise-516-blog-list-tests-step4)
+- [Exercise 5.17 bloglist end to end testing, step1](#exercise-517-bloglist-end-to-end-testing-step1)
+- [Exercise 5.18 bloglist end to end testing, step2](#exercise-518-bloglist-end-to-end-testing-step2)
+- [Exercise 5.19 bloglist end to end testing, step3](#exercise-519-bloglist-end-to-end-testing-step3)
+- [Exercise 5.20 bloglist end to end testing, step4](#exercise-520-bloglist-end-to-end-testing-step4)
+- [Exercise 5.21 bloglist end to end testing, step5](#exercise-521-bloglist-end-to-end-testing-step5)
+- [Exercise 5.22 bloglist end to end testing, step6](#exercise-522-bloglist-end-to-end-testing-step6)
 
 
 ## Exercise 5.1: Blog list frontend, step1
@@ -1139,7 +1139,8 @@ Check that the notification shown with unsuccessful login is displayed red.
         </ul>
       </form>
   ```
-  3. Write tests for successful log in
+3. Write tests for successful log in
+
     ```js
       it('succeeds with correct credentials', function() {
         cy.get('#username').type('greenvan')
@@ -1149,7 +1150,8 @@ Check that the notification shown with unsuccessful login is displayed red.
         cy.contains('User Green Van logged in')
       })
     ```
-  4. Write tests for unsuccessful log in
+4. Write tests for unsuccessful log in
+
     ```js
       it('fails with wrong credentials', function() {
         cy.get('#username').type('greenvan')
@@ -1167,15 +1169,109 @@ Check that the notification shown with unsuccessful login is displayed red.
     ```
 
 ## Exercise 5.19 bloglist end to end testing, step3
-Make a test which checks that a logged-in user can create a new blog. The structure of the test could be as follows:
+Make a test which checks that a logged-in user can create a new blog.
+The test has to ensure that a new blog is added to the list of all blogs.
+
+```js
+   describe('When logged in', function() {
+    beforeEach(function() {
+      cy.login({ username: 'greenvan', password: 'mypass' })
+    })
+
+    it('A blog can be created', function() {
+
+      cy.createBlog({
+        title: 'Blog created by cypress',
+        author: 'Cypress author',
+        url: 'fake url' })
+
+      cy.contains('Blog created by cypress')
+
+    })
+
+  })
+```
 
 ## Exercise 5.20 bloglist end to end testing, step4
 Make a test which checks that users can like a blog.
 
+
+```js
+    it('And it can be liked', function () {
+
+      cy.createBlog({
+        title: 'Blog created by cypress with 12 likes',
+        author: 'Cypress author',
+        url: 'fake url',
+        likes: 12 })
+
+      cy.get('.blog').contains('details').click()
+      cy.get('.blogDetails').should('contain', 'Like count: 12')
+      cy.get('.likeButton').click()
+      cy.get('.blogDetails').should('contain', 'Like count: 13')
+    })
+```
+
 ## Exercise 5.21 bloglist end to end testing, step5
 Make a test for ensuring that the user who created a blog can delete it.
+
+
+```js
+    it('It also can be deleted by its creator', function () {
+
+      cy.createBlog({
+        title: 'Blog created by cypress just to be deleted',
+        author: 'Cypress author',
+        url: 'fake url',
+        likes: 7 })
+
+      cy.get('.blog').should('contain', 'Blog created by cypress just to be deleted')
+      cy.get('.blog').contains('details').click()
+      cy.contains('Remove').click()
+      cy.get('html').should('not.contain', 'Blog created by cypress just to be deleted')
+    })
+```
+ERROR: not working at the moment
+
 
 Optional bonus exercise: also check that other users cannot delete the blog.
 
 ## Exercise 5.22 bloglist end to end testing, step6
 Make a test which checks that the blogs are ordered according to likes with the blog with the most likes being first.
+
+```js
+    describe('and there are several blogs', function () {
+      beforeEach(function () {
+        cy.createBlog({
+          title: 'Blog with no likes',
+          author: 'Cypress author',
+          url: 'http://cypresstestingblogapp.nice',
+        })
+          .then(() =>
+            cy.createBlog({
+              title: 'Blog with 1 like',
+              author: 'Cypress author',
+              url: 'http://cypresstestingblogapp.nice',
+              likes: 1,
+            })
+          )
+          .then(() =>
+            cy.createBlog({
+              title: 'Blog with 10 likes',
+              author: 'Cypress author',
+              url: 'http://cypresstestingblogapp.nice',
+              likes: 10,
+            })
+          )
+      })
+
+      it('blogs are ordered by number of likes', function () {
+        cy.get('.blog').then((blogs) => {
+          expect(blogs[0].textContent).to.contains('Blog with 10 likes')
+          expect(blogs[1].textContent).to.contains('Blog with 1 like')
+          expect(blogs[2].textContent).to.contains('Blog with no likes')
+        })
+      })
+
+    })
+```    

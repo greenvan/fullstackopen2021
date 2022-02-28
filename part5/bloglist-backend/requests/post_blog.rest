@@ -1,6 +1,8 @@
 POST http://localhost:3003/api/blogs
 Content-Type: application/json
-
+Headers: {
+  "Connection": "keep-alive",
+  "Authorization": "bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImdyZWVudmFuIiwiaWQiOiI2MjFjYTc4MzE3NzU3MjYyZTQxZGYxZmEiLCJpYXQiOjE2NDYwNDUwNTl9.-0BrdjUE6XTU3GtRIb0lHqH5ZqKL3JU1iCON8BS7zCs",
 {
   "title": "My saved blog",
   "author": "Green Van",
